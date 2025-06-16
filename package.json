@@ -1,0 +1,28 @@
+{
+  "name": "wanderscript",
+  "version": "1.0.0",
+  "description": "WanderScript is a full-stack blogging platform where users can share stories, add a bio, link two social media profiles, and embed a YouTube channel. Posts can be added, edited, deleted, and upvoted. Feeds are sorted by latest uploads for easy discovery.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kushal-script/WanderScript.git"
+  },
+  "keywords": [],
+  "author": "Kushal Sathyanarayan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kushal-script/WanderScript/issues"
+  },
+  "homepage": "https://github.com/kushal-script/WanderScript#readme",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "method-override": "^3.0.0",
+    "mysql2": "^3.14.1",
+    "nodemon": "^3.1.10",
+    "uuid": "^11.1.0"
+  }
+}
