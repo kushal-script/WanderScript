@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const {v4: uuidv4} = require('uuid');
 const methodOverride = require('method-override');
+const saltRounds = 10;
 
 app.use(session({
     secret: 'your-secret-key', // Replace with a secure secret key
@@ -29,7 +30,7 @@ db.connect((err) => {
     if (err) {
         console.error("DB Connection Error:", err);
     } else {
-        console.log("Connected to MySQL (justPostDB)");
+        console.log("Connected to MySQL (wanderScriptDB)");
     }
 });
 
@@ -49,6 +50,11 @@ app.get('/WanderScript/signup', (req, res) => {
 // GET Sign In
 app.get('/WanderScript/signin', (req, res) => {
     res.render('signin.ejs', { message: req.query.message || null });
+});
+
+// GET Forgot Password
+app.get('/WanderScript/forgot-password', (req, res) => {
+    res.render('forgotPassword.ejs', { message: req.query.message || null });
 });
 
 // POST Sign Up
@@ -94,6 +100,38 @@ app.post('/WanderScript/signin', (req, res) => {
             }
         }
     });
+});
+
+//POST password reset
+app.post('/WanderScript/reset-password', async (req, res) => {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        return res.render('forgotPassword.ejs', { message: "Passwords do not match!" });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        const updateQuery = `UPDATE users SET password = ? WHERE mailID = ?`;
+
+        db.query(updateQuery, [hashedPassword, email], (err, result) => {
+            if (err) {
+                console.error("DB error:", err);
+                return res.render('forgotPassword.ejs', { message: "Database error." });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.render('forgotPassword.ejs', { message: "No user found with that email." });
+            }
+
+            res.render('forgotPassword.ejs', { message: "Password successfully reset!" });
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.render('forgotPassword.ejs', { message: "Something went wrong. Try again." });
+    }
 });
 
 app.listen(port, () => {
