@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="/css/auth.css">
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h2>WanderScript</h2>
+        <form action="/WanderScript/signup" method="POST" onsubmit="return validatePasswords()">
+            <div class="form-box">
+                <label>username</label>
+                <input type="text" name="username" required>
+
+                <label>e-mail id</label>
+                <input type="email" name="email" required>
+
+                <label>password</label>
+                <input type="password" name="password" id="password" required>
+
+                <label>confirm password</label>
+                <input type="password" name="confirmPassword" id="confirmPassword" required>
+                <div id="passwordError" class="error-message">Passwords do not match</div>
+
+                <button type="submit">sign up</button>
+            </div>
+        </form>
+    </div>
+
+    <% if (message) { %>
+    <script>
+        alert("<%= message %>");
+    </script>
+    <% } %>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordError = document.getElementById('passwordError');
+
+        function checkPasswordsMatch() {
+            if (confirmPasswordInput.value !== passwordInput.value) {
+                passwordError.style.display = 'block';
+            } else {
+                passwordError.style.display = 'none';
+            }
+        }
+
+        passwordInput.addEventListener('input', checkPasswordsMatch);
+        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
+
+        function validatePasswords() {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                passwordError.style.display = 'block';
+                return false; 
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

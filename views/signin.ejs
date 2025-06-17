@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <div class="auth-card active">
+        <h2>WanderScript</h2>
+        <form action="/WanderScript/signin" method="POST">
+            <div class="form-box">
+                <label>username</label>
+                <input type="text" name="username" required>
+
+                <label>e-mail id</label>
+                <input type="email" name="email" required>
+
+                <label>password</label>
+                <input type="password" name="password" required>
+
+                <button type="submit">sign in</button>
+            </div>
+        </form>
+    </div>
+
+    <% if (message) { %>
+    <script>
+        alert("<%= message %>");
+    </script>
+    <% } %>
+</body>
+</html>
