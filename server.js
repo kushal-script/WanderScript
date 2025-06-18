@@ -1,12 +1,14 @@
 const express = require('express');
 const app = express();
-const port = 3000;
 const connection = require('mysql2');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const {v4: uuidv4} = require('uuid');
 const methodOverride = require('method-override');
+const nodemailer = require('nodemailer');
+
+const port = 3000;
 const saltRounds = 10;
 
 app.use(session({
@@ -34,6 +36,17 @@ db.connect((err) => {
     }
 });
 
+//OTP confirmation
+const otp = Math.floor(100000 + Math.random() * 900000); 
+const expiry = Date.now() + 5 * 60 * 1000; 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'kushal0042@gmail.com',
+      pass: 'zrgp rkbm mjxn rpkk' 
+    }
+  });
+
 app.use(express.urlencoded({ extended: true }));
 
 app.use(methodOverride('_method'));
@@ -55,6 +68,11 @@ app.get('/WanderScript/signin', (req, res) => {
 // GET Forgot Password
 app.get('/WanderScript/forgot-password', (req, res) => {
     res.render('forgotPassword.ejs', { message: req.query.message || null });
+});
+
+// GET Verify OTP
+app.get('/WanderScript/verify-otp', (req, res) => {
+    res.render('otpVerification.ejs', { message: req.query.message || null });
 });
 
 // POST Sign Up
