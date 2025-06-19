@@ -1,118 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP verification - WanderScript</title>
-    <link rel="stylesheet" href="/css/otpVerification.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP verification - WanderScript</title>
+  <link rel="stylesheet" href="/css/otpVerification.css">
 </head>
+
 <body>
-    <div class="container">
-        <h2>OTP Verification</h2>
-        <% if (message) { %>
-            <p class="message"><%= message %></p>
-        <% } %>
-        <form action="/WanderScript/verify-otp" id="requestForm" method="post" style="<%= typeof otpExpiry !== 'undefined' ? 'display: none;' : '' %>">
-            <input type="hidden" name="OTPrequest" value="true">
-            <input type="text" name="username" placeholder="Enter your username" required>
-            <input type="email" name="email" placeholder="Enter your email" required>
-            <button type="submit" id="requestBtn">Request OTP</button>
+  <div class="container">
+    <h2>OTP Verification</h2>
+    <% if (message) { %>
+      <p class="message">
+        <%= message %>
+      </p>
+      <% } %>
+        <form action="/WanderScript/verify-otp" id="requestForm" method="post"
+          style="<%= typeof otpExpiry !== 'undefined' ? 'display: none;' : '' %>">
+          <input type="hidden" name="OTPrequest" value="true">
+          <input type="text" name="username" placeholder="Enter your username" required>
+          <input type="email" name="email" id="email" placeholder="Enter your email" required
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address">
+          <span id="email-error" style="color: red; font-size: 0.85rem;"></span>
+          <button type="submit" id="requestBtn">Request OTP</button>
         </form>
-        <form action="/WanderScript/verify-otp" id="verifyForm" method="post" style="<%= typeof otpExpiry !== 'undefined' ? 'display:block' : 'display:none' %>">
-            <input type="hidden" name="verifyRequest" value="1">
-            <input type="hidden" name="email" value="<%= typeof mailID !== 'undefined' ? mailID : '' %>">
-            <input type="hidden" name="username" value="<%= typeof username !== 'undefined' ? username : '' %>">
-            <input type="text" name="userOtp" placeholder="Enter OTP" required>
-            <button type="submit">Verify OTP</button>
+        <form action="/WanderScript/verify-otp" id="verifyForm" method="post"
+          style="<%= typeof otpExpiry !== 'undefined' ? 'display:block' : 'display:none' %>">
+          <input type="hidden" name="verifyRequest" value="1">
+          <input type="hidden" id="email" name="email" value="<%= typeof mailID !== 'undefined' ? mailID : '' %>"
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address">
+          <span id="email-error" style="color: red; font-size: 0.85rem;"></span>
+          <input type="hidden" name="username" value="<%= typeof username !== 'undefined' ? username : '' %>">
+          <input type="text" name="userOtp" placeholder="Enter OTP" required>
+          <button type="submit">Verify OTP</button>
         </form>
         <div id="timerSection" style="<%= typeof otpExpiry !== 'undefined' ? 'display:block;' : 'display:none;' %>">
-            <p id="timer" style="margin-bottom: 0.5rem;"></p>
-            <form method="post" action="/WanderScript/verify-otp">
-                <input type="hidden" name="OTPrequest" value="1">
-                <input type="hidden" name="email" value="<%= typeof mailID !== 'undefined' ? mailID : '' %>">
-                <input type="hidden" name="username" value="<%= typeof username !== 'undefined' ? username : '' %>">
-                <button type="submit" id="resendBtn" disabled>Resend OTP</button>
-            </form>
+          <p id="timer" style="margin-bottom: 0.5rem;"></p>
+          <form method="post" action="/WanderScript/verify-otp">
+            <input type="hidden" name="OTPrequest" value="1">
+            <input type="hidden" id="email" name="email" value="<%= typeof mailID !== 'undefined' ? mailID : '' %>"
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address">
+            <span id="email-error" style="color: red; font-size: 0.85rem;"></span>
+            <input type="hidden" name="username" value="<%= typeof username !== 'undefined' ? username : '' %>">
+            <button type="submit" id="resendBtn" disabled>Resend OTP</button>
+          </form>
         </div>
         <div style="text-align: center; margin-top: 1.5rem;">
-            <a href="/WanderScript/signin">
-                <button class="secondary-btn">Back to Sign In</button>
-            </a>
+          <a href="/WanderScript/signin">
+            <button class="secondary-btn">Back to Sign In</button>
+          </a>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
+          const emailInput = document.getElementById('email');
+          const emailError = document.getElementById('email-error');
+          const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+          emailInput.addEventListener('input', () => {
+            const value = emailInput.value;
+            if (value === "") {
+              emailError.textContent = "";
+            } else if (!emailPattern.test(value)) {
+              emailError.textContent = "Enter a valid email address";
+            } else {
+              emailError.textContent = "";
+            }
+          });
+        </script>
+        <script>
             <% if (typeof otpExpiry !== 'undefined') { %>
                 const expiryTime = <%= otpExpiry %>;
-                const timerElement = document.getElementById('timer');
-                const resendBtn = document.getElementById('resendBtn');
+            const timerElement = document.getElementById('timer');
+            const resendBtn = document.getElementById('resendBtn');
 
-                function updateTimer() {
-                    const secondsLeft = Math.floor((expiryTime - Date.now()) / 1000);
-                    if (secondsLeft > 0) {
-                        const min = Math.floor(secondsLeft / 60);
-                        const sec = secondsLeft % 60;
-                        timerElement.textContent = `OTP expires in ${min}:${sec < 10 ? '0' + sec : sec}`;
-                    } else {
-                        timerElement.textContent = "OTP expired.";
-                        resendBtn.disabled = false;
-                        clearInterval(interval);
-                    }
-                }
+            function updateTimer() {
+              const secondsLeft = Math.floor((expiryTime - Date.now()) / 1000);
+              if (secondsLeft > 0) {
+                const min = Math.floor(secondsLeft / 60);
+                const sec = secondsLeft % 60;
+                timerElement.textContent = `OTP expires in ${min}:${sec < 10 ? '0' + sec : sec}`;
+              } else {
+                timerElement.textContent = "OTP expired.";
+                resendBtn.disabled = false;
+                clearInterval(interval);
+              }
+            }
 
-                const interval = setInterval(updateTimer, 1000);
-                updateTimer();
+            const interval = setInterval(updateTimer, 1000);
+            updateTimer();
             <% } %>
-        </script>
-        <% if (message === 'Email, username, and OTP are required.') { %>
-            <script>
-              Swal.fire({
-                title: 'WanderScript',
-                text: "Email, username, and OTP are required.",
-                icon: "error",
-                confirmButtonColor: '#007bff'
-              });
-            </script>
-            <% } %>
-        <% if (message === 'Internal server error.') { %>
-                <script>
-                  Swal.fire({
-                    title: 'WanderScript',
-                    text: "Internal server error.",
-                    icon: "error",
-                    confirmButtonColor: '#007bff'
-                  });
-                </script>
-                <% } %>
-                <% if (message === 'No user found with this email or username.') { %>
-                    <script>
-                      Swal.fire({
-                        title: 'WanderScript',
-                        text: "No user found with this email or username.",
-                        icon: "info",
-                        confirmButtonColor: '#007bff'
-                      });
-                    </script>
-                    <% } %>
-                    <% if (message === 'Invalid or expired OTP. Please try again.') { %>
-                        <script>
-                          Swal.fire({
-                            title: 'WanderScript',
-                            text: "Invalid or expired OTP. Please try again.",
-                            icon: "warning",
-                            confirmButtonColor: '#007bff'
-                          });
-                        </script>
-                        <% } %>
-                        <% if (message === 'An unexpected error occurred during OTP verification.') { %>
-                            <script>
-                              Swal.fire({
-                                title: 'WanderScript',
-                                text: "An unexpected error occurred during OTP verification.",
-                                icon: "error",
-                                confirmButtonColor: '#007bff'
-                              });
-                            </script>
-                            <% } %>
-                            
-</body>
-</html>
+
+            <% - include('includes/alert') %>
+
+</body >
+
+</html >

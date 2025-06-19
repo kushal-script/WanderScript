@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
@@ -14,6 +15,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="auth-card">
         <h2>WanderScript</h2>
@@ -23,7 +25,9 @@
                 <input type="text" name="username" required>
 
                 <label>e-mail id</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" id="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    title="Please enter a valid email address">
+                <span id="email-error" style="color: red; font-size: 0.85rem;"></span>
 
                 <label>password</label>
                 <input type="password" name="password" id="password" required>
@@ -39,63 +43,32 @@
         <div style="text-align: center; margin-top: 1rem;">
             <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Already a user?</p>
             <a href="/WanderScript/signin">
-                <button style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <button
+                    style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
                     Sign In
                 </button>
             </a>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <% if (message === 'User already exists. Redirecting to login.') { %>
-        <script>
-          Swal.fire({
-            title: 'WanderScript',
-            text: "User already exists. Redirecting to login.",
-            icon: "info",
-            confirmButtonColor: '#007bff'
-          });
-        </script>
-        <% } %>
-        <% if (message === 'Registered successfully! Please sign in.') { %>
-            <script>
-              Swal.fire({
-                title: 'WanderScript',
-                text: "Registered successfully! Please sign in.",
-                icon: "success",
-                confirmButtonColor: '#007bff'
-              });
-            </script>
-            <% } %>
-
-    <% if (message) { %>
     <script>
-        alert("<%= message %>");
-    </script>
-    <% } %>
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 
-    <script>
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const passwordError = document.getElementById('passwordError');
-
-        function checkPasswordsMatch() {
-            if (confirmPasswordInput.value !== passwordInput.value) {
-                passwordError.style.display = 'block';
+        emailInput.addEventListener('input', () => {
+            const value = emailInput.value;
+            if (value === "") {
+                emailError.textContent = "";
+            } else if (!emailPattern.test(value)) {
+                emailError.textContent = "Enter a valid email address";
             } else {
-                passwordError.style.display = 'none';
+                emailError.textContent = "";
             }
-        }
-
-        passwordInput.addEventListener('input', checkPasswordsMatch);
-        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
-
-        function validatePasswords() {
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                passwordError.style.display = 'block';
-                return false; 
-            }
-            return true;
-        }
+        });
     </script>
+
+    <%- include('includes/alert') %>
+
 </body>
+
 </html>

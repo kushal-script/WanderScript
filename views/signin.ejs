@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Sign In</title>
     <link rel="stylesheet" href="/css/auth.css">
 </head>
+
 <body>
     <div class="auth-card active">
         <h2>WanderScript</h2>
@@ -14,7 +16,9 @@
                 <input type="text" name="username" required>
 
                 <label>e-mail id</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" id="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    title="Please enter a valid email address">
+                <span id="email-error" style="color: red; font-size: 0.85rem;"></span>
 
                 <label>password</label>
                 <input type="password" name="password" required>
@@ -25,7 +29,8 @@
         <div style="text-align: center; margin-top: 1rem;">
             <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Forgot your password?</p>
             <a href="/WanderScript/forgot-password">
-                <button style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <button
+                    style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
                     Reset Password
                 </button>
             </a>
@@ -33,7 +38,8 @@
         <div style="text-align: center; margin-top: 1rem;">
             <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">New user?</p>
             <a href="/WanderScript/signup">
-                <button style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <button
+                    style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
                     Sign Up
                 </button>
             </a>
@@ -46,36 +52,25 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <% if (message === 'User not found! Redirecting to sign up.') { %>
-        <script>
-          Swal.fire({
-            title: 'WanderScript',
-            text: "User not found! Redirecting to sign up.",
-            icon: "info",
-            confirmButtonColor: '#007bff'
-          });
-        </script>
-        <% } %>
-        <% if (message === 'Let the blogging begin!') { %>
-            <script>
-              Swal.fire({
-                title: 'WanderScript',
-                text: "Let the blogging begin!",
-                icon: "success",
-                confirmButtonColor: '#007bff'
-              });
-            </script>
-            <% } %>
-            <% if (message === 'Incorrect credentials.') { %>
-                <script>
-                  Swal.fire({
-                    title: 'WanderScript',
-                    text: "Incorrect credentials.",
-                    icon: "error",
-                    confirmButtonColor: '#007bff'
-                  });
-                </script>
-                <% } %>
+    <script>
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+        emailInput.addEventListener('input', () => {
+            const value = emailInput.value;
+            if (value === "") {
+                emailError.textContent = "";
+            } else if (!emailPattern.test(value)) {
+                emailError.textContent = "Enter a valid email address";
+            } else {
+                emailError.textContent = "";
+            }
+        });
+    </script>
+
+    <%- include('includes/alert') %>
+
 </body>
+
 </html>
