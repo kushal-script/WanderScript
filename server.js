@@ -12,7 +12,7 @@ const port = 3000;
 const saltRounds = 10;
 
 app.use(session({
-    secret: 'your-secret-key', // Replace with a secure secret key
+    secret: 'your-secret-key', 
     resave: false,
     saveUninitialized: true,
     cookie: { 
