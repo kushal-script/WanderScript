@@ -9,20 +9,15 @@
 <body>
     <div class="container">
         <h2>OTP Verification</h2>
-
         <% if (message) { %>
             <p class="message"><%= message %></p>
         <% } %>
-
-        <!-- Request OTP Form -->
         <form action="/WanderScript/verify-otp" id="requestForm" method="post" style="<%= typeof otpExpiry !== 'undefined' ? 'display: none;' : '' %>">
             <input type="hidden" name="OTPrequest" value="true">
             <input type="text" name="username" placeholder="Enter your username" required>
             <input type="email" name="email" placeholder="Enter your email" required>
             <button type="submit" id="requestBtn">Request OTP</button>
         </form>
-
-        <!-- OTP Verification Form -->
         <form action="/WanderScript/verify-otp" id="verifyForm" method="post" style="<%= typeof otpExpiry !== 'undefined' ? 'display:block' : 'display:none' %>">
             <input type="hidden" name="verifyRequest" value="1">
             <input type="hidden" name="email" value="<%= typeof mailID !== 'undefined' ? mailID : '' %>">
@@ -30,8 +25,6 @@
             <input type="text" name="userOtp" placeholder="Enter OTP" required>
             <button type="submit">Verify OTP</button>
         </form>
-
-        <!-- Timer & Resend OTP -->
         <div id="timerSection" style="<%= typeof otpExpiry !== 'undefined' ? 'display:block;' : 'display:none;' %>">
             <p id="timer" style="margin-bottom: 0.5rem;"></p>
             <form method="post" action="/WanderScript/verify-otp">
@@ -41,13 +34,11 @@
                 <button type="submit" id="resendBtn" disabled>Resend OTP</button>
             </form>
         </div>
-
         <div style="text-align: center; margin-top: 1.5rem;">
             <a href="/WanderScript/signin">
                 <button class="secondary-btn">Back to Sign In</button>
             </a>
         </div>
-
         <script>
             <% if (typeof otpExpiry !== 'undefined') { %>
                 const expiryTime = <%= otpExpiry %>;

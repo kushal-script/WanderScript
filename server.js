@@ -7,7 +7,6 @@ const session = require('express-session');
 const {v4: uuidv4} = require('uuid');
 const methodOverride = require('method-override');
 const nodemailer = require('nodemailer');
-const { verify } = require('crypto');
 
 const port = 3000;
 const saltRounds = 10;
@@ -98,8 +97,6 @@ function otpVerification(req, res) {
                 mailID: email
             });
         }
-
-        // Fetch OTP and expiry from DB
         const query = 'SELECT otp, otp_expiry FROM users WHERE mailID = ? and username = ?';
         db.query(query, [email, username], (err, results) => {
             if (err) {
@@ -109,7 +106,6 @@ function otpVerification(req, res) {
                     mailID: email
                 });
             }
-
             if (results.length === 0) {
                 return res.render('otpVerification.ejs', {
                     message: "No user found with this email or username.",
@@ -121,10 +117,8 @@ function otpVerification(req, res) {
             const expiry = results[0].otp_expiry;
 
             if (userOtp == dbOtp && Date.now() < expiry) {
-                // OTP is valid
                 res.send(`Welcome ${username} !!`);
             } else {
-                // OTP is invalid or expired
                 res.render('otpVerification.ejs', {
                     message: "Invalid or expired OTP. Please try again.",
                     mailID: email,
@@ -144,7 +138,6 @@ function otpVerification(req, res) {
 function otpVerification(req, res) {
     try {
         const { userOtp, email, username } = req.body;
-
         if (!email || !userOtp || !username) {
             return res.render('otpVerification.ejs', {
                 message: "Email, username, and OTP are required.",
@@ -152,8 +145,6 @@ function otpVerification(req, res) {
                 username: username
             });
         }
-
-        // Fetch OTP and expiry from DB
         const query = 'SELECT otp, otp_expiry FROM users WHERE mailID = ? AND username = ?';
         db.query(query, [email, username], (err, results) => {
             if (err) {
@@ -164,7 +155,6 @@ function otpVerification(req, res) {
                     username: username
                 });
             }
-
             if (results.length === 0) {
                 return res.render('otpVerification.ejs', {
                     message: "No user found with this email or username.",
@@ -177,7 +167,6 @@ function otpVerification(req, res) {
             const expiry = results[0].otp_expiry;
 
             if (userOtp == dbOtp && Date.now() < expiry) {
-                // OTP is valid
                 return res.send(`Welcome ${username} !!`);
             } else {
                 return res.render('otpVerification.ejs', {
@@ -345,46 +334,3 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
   }
   );
-
-
-
-
-
-
-
-
-
-
-
-
-// Logout route
-// app.get('/logout', (req, res) => {
-//     req.session.destroy();
-//     res.redirect('/signin?message=' + encodeURIComponent('You have been logged out.'));
-// });
-
-// app.get('/WanderScript/:username', (req, res) => {
-//     const username =req.params.username;
-//     const query = 'SELECT * FROM users WHERE username = ?';
-//     db.query(query, [username], (error, results) => {
-//         if(error){
-//             console.log("Error fetching user data:", error);
-//             res.status(500).send("Error fetching user data");
-//         }
-//         const user = results[0];
-//         if (!user) {
-//             return res.status(404).send('User not found');
-//         }
-//         res.render('currentUser.ejs', { user });
-//     })
-// });
-
-// db.query('SHOW TABLES', (err, results) => {
-//     if (err) {
-//         console.error('Error fetching tables:', err);
-//     } else {
-//         console.log('Tables in the database:', results.map(row => Object.values(row)[0]));
-//     }
-// }
-// );
-
