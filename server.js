@@ -136,7 +136,12 @@ function otpVerification(req, res) {
             const expiry = results[0].otp_expiry;
 
             if (userOtp == dbOtp && Date.now() < expiry) {
-                return res.send(`Welcome ${username} !!`);
+
+                return res.render('homeFeed.ejs', {
+                    message: 'Let the blogging begin!',
+                    messagetype: 'success'
+                });
+
             } else {
                 return res.render('otpVerification.ejs', {
                     message: "Invalid or expired OTP. Please try again.",
@@ -278,7 +283,9 @@ app.post('/WanderScript/signin', (req, res) => {
                     username: user.username,
                     email: user.mailID
                 };
-                res.render('homeFeed.ejs', { message: 'Let the blogging begin!' });
+                res.render('homeFeed.ejs', { 
+                    message: 'Let the blogging begin!',
+                    messageType: 'success' });
             } else {
                 res.redirect('/WanderScript/signin?message=Incorrect credentials&info=error');
             }
@@ -332,3 +339,11 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 }
 );
+
+// db.query('select *from users;', (req, res) => {
+//     console.log(res);
+// })
+
+// db.query('delete from users;', (req, res) => {
+//     console.log(res);
+// })

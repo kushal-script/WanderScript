@@ -69,8 +69,25 @@
           });
         </script>
         <script>
-            <% if (typeof otpExpiry !== 'undefined') { %>
-                const expiryTime = <%= otpExpiry %>;
+          const emailInput = document.getElementById('email');
+          const emailError = document.getElementById('email-error');
+          const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+          if (emailInput) {
+            emailInput.addEventListener('input', () => {
+              const value = emailInput.value;
+              if (value === "") {
+                emailError.textContent = "";
+              } else if (!emailPattern.test(value)) {
+                emailError.textContent = "Enter a valid email address";
+              } else {
+                emailError.textContent = "";
+              }
+            });
+          }
+        
+          <% if (typeof otpExpiry !== 'undefined') { %>
+            const expiryTime = <%= otpExpiry %>;
             const timerElement = document.getElementById('timer');
             const resendBtn = document.getElementById('resendBtn');
 
@@ -87,12 +104,12 @@
               }
             }
 
-            const interval = setInterval(updateTimer, 1000);
+            let interval = setInterval(updateTimer, 1000);
             updateTimer();
-            <% } %>
+          <% } %>
+        </script>
+        <%-include('includes/alert')%>
 
-            <% - include('includes/alert') %>
+</body>
 
-</body >
-
-</html >
+</html>

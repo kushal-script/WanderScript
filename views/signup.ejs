@@ -55,8 +55,12 @@
         const emailError = document.getElementById('email-error');
         const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const passwordError = document.getElementById('passwordError');
+
         emailInput.addEventListener('input', () => {
-            const value = emailInput.value;
+            const value = emailInput.value.trim();
             if (value === "") {
                 emailError.textContent = "";
             } else if (!emailPattern.test(value)) {
@@ -65,6 +69,32 @@
                 emailError.textContent = "";
             }
         });
+
+        function checkPasswordMatch() {
+            if (password.value !== confirmPassword.value) {
+                passwordError.style.display = "block";
+            } else {
+                passwordError.style.display = "none";
+            }
+        }
+
+        password.addEventListener('input', checkPasswordMatch);
+        confirmPassword.addEventListener('input', checkPasswordMatch);
+
+        function validatePasswords() {
+            const emailValue = emailInput.value.trim();
+            if (!emailPattern.test(emailValue)) {
+                emailError.textContent = "Enter a valid email address";
+                return false;
+            }
+
+            if (password.value !== confirmPassword.value) {
+                passwordError.style.display = "block";
+                return false;
+            }
+
+            return true; 
+        }
     </script>
 
     <%- include('includes/alert') %>

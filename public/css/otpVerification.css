@@ -2,111 +2,122 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: #a1a1a1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+    color: #e0e0e0;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-}
-
-.container {
-    background-color: #e6e6e6;
-    border: 2px solid transparent;
-    padding: 2rem;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    animation: fadeIn 0.6s ease-in-out;
-}
-
-.container h2 {
+  }
+ 
+  .container {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 24px rgba(0, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    width: 360px;
+    animation: fadeIn 0.9s ease-out;
+  }
+  
+  .container h2 {
     text-align: center;
+    font-size: 2rem;
     margin-bottom: 1.5rem;
-    color: #111;
-    font-weight: 500;
-}
-
-form {
+    background: linear-gradient(to right, #00f0ff, #8e00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  form {
     display: flex;
     flex-direction: column;
     margin-bottom: 1rem;
-}
-
-input[type="text"],
-input[type="email"] {
-    padding: 0.5rem;
-    margin-bottom: 0.8rem;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    background: #141414;
     border: 1px solid #333;
-    border-radius: 3px;
-    background-color: #f5f5f5;
-    color: #000;
-}
-
-input:focus {
-    border-color: #007bff;
-    background-color: #fff;
-    outline: none;
-}
-
-button {
-    margin-top: 0.3rem;
-    padding: 0.6rem;
-    border: 1px solid #333;
-    background-color: #f5f5f5;
-    color: #000;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: all 0.2s ease-in-out;
-}
-
-button:hover {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.secondary-btn {
-    padding: 0.5rem 1rem;
-    background-color: transparent;
-    color: #007bff;
-    border: 1px solid #007bff;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.secondary-btn:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.message {
-    text-align: center;
-    color: #d9534f;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    color: #fff;
     margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
+    transition: 0.3s ease;
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: #00e0ff;
+    box-shadow: 0 0 8px #00e0ff88;
+    outline: none;
+  }
+  
+  button {
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(to right, #00f0ff, #8e00ff);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+  
+  button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 12px #00f0ff88;
+  }
+  
+  .secondary-btn {
+    margin-top: 1rem;
+    width: 100%;
+    background: transparent;
+    border: 1px solid #00e0ff;
+    color: #00e0ff;
+  }
+  
+  .secondary-btn:hover {
+    background: #00e0ff22;
+    box-shadow: 0 0 8px #00e0ff66;
+  }
 
-#timer {
+  .message {
+    font-size: 0.9rem;
+    color: #ffcc00;
     text-align: center;
-    font-size: 0.9rem;
-    color: #333;
-    margin-top: 0.3rem;
-    font-weight: bold;
-}
-
-@keyframes fadeIn {
+    margin-bottom: 1rem;
+  }
+  
+  #timer {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #00e0ff;
+    margin-bottom: 0.7rem;
+  }
+  
+  @keyframes fadeIn {
     from {
-        opacity: 0;
-        transform: translateY(-10px);
+      opacity: 0;
+      transform: translateY(12px);
     }
     to {
-        opacity: 1;
-        transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
     }
-}
+  }
+  
+  @media (max-width: 420px) {
+    .container {
+      width: 90%;
+      padding: 2rem 1.4rem;
+    }
+  }
