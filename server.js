@@ -7,6 +7,7 @@ const session = require('express-session');
 const {v4: uuidv4} = require('uuid');
 const methodOverride = require('method-override');
 const nodemailer = require('nodemailer');
+const { verify } = require('crypto');
 
 const port = 3000;
 const saltRounds = 10;
@@ -74,6 +75,194 @@ app.get('/WanderScript/forgot-password', (req, res) => {
 app.get('/WanderScript/verify-otp', (req, res) => {
     res.render('otpVerification.ejs', { message: req.query.message || null });
 });
+
+//Post verify otp
+app.post('/WanderScript/verify-otp', (req, res) => {
+    const { verifyRequest, OTPrequest } = req.body;
+    if(verifyRequest){
+        otpVerification(req, res);
+    }
+    if(OTPrequest){
+        sendOtp(req, res);
+    }
+});
+
+//Function otp verification
+function otpVerification(req, res) {
+    try {
+        const { userOtp, email, username } = req.body;
+
+        if (!email || !userOtp || !username) {
+            return res.render('otpVerification.ejs', {
+                message: "Email, username, and OTP are required.",
+                mailID: email
+            });
+        }
+
+        // Fetch OTP and expiry from DB
+        const query = 'SELECT otp, otp_expiry FROM users WHERE mailID = ? and username = ?';
+        db.query(query, [email, username], (err, results) => {
+            if (err) {
+                console.error("Database error during OTP verification:", err);
+                return res.render('otpVerification.ejs', {
+                    message: "Internal server error.",
+                    mailID: email
+                });
+            }
+
+            if (results.length === 0) {
+                return res.render('otpVerification.ejs', {
+                    message: "No user found with this email or username.",
+                    mailID: email
+                });
+            }
+
+            const dbOtp = results[0].otp;
+            const expiry = results[0].otp_expiry;
+
+            if (userOtp == dbOtp && Date.now() < expiry) {
+                // OTP is valid
+                res.send(`Welcome ${username} !!`);
+            } else {
+                // OTP is invalid or expired
+                res.render('otpVerification.ejs', {
+                    message: "Invalid or expired OTP. Please try again.",
+                    mailID: email,
+                    otpExpiry: expiry
+                });
+            }
+        });
+    } catch (error) {
+        console.error("Error in OTP verification logic:", error);
+        res.render('otpVerification.ejs', {
+            message: "An unexpected error occurred during OTP verification."
+        });
+    }
+}
+
+// OTP Verification Function
+function otpVerification(req, res) {
+    try {
+        const { userOtp, email, username } = req.body;
+
+        if (!email || !userOtp || !username) {
+            return res.render('otpVerification.ejs', {
+                message: "Email, username, and OTP are required.",
+                mailID: email,
+                username: username
+            });
+        }
+
+        // Fetch OTP and expiry from DB
+        const query = 'SELECT otp, otp_expiry FROM users WHERE mailID = ? AND username = ?';
+        db.query(query, [email, username], (err, results) => {
+            if (err) {
+                console.error("Database error during OTP verification:", err);
+                return res.render('otpVerification.ejs', {
+                    message: "Internal server error.",
+                    mailID: email,
+                    username: username
+                });
+            }
+
+            if (results.length === 0) {
+                return res.render('otpVerification.ejs', {
+                    message: "No user found with this email or username.",
+                    mailID: email,
+                    username: username
+                });
+            }
+
+            const dbOtp = results[0].otp;
+            const expiry = results[0].otp_expiry;
+
+            if (userOtp == dbOtp && Date.now() < expiry) {
+                // OTP is valid
+                return res.send(`Welcome ${username} !!`);
+            } else {
+                return res.render('otpVerification.ejs', {
+                    message: "Invalid or expired OTP. Please try again.",
+                    mailID: email,
+                    username: username,
+                    otpExpiry: expiry
+                });
+            }
+        });
+    } catch (error) {
+        console.error("Error in OTP verification logic:", error);
+        return res.render('otpVerification.ejs', {
+            message: "An unexpected error occurred during OTP verification."
+        });
+    }
+}
+
+// Send OTP Function
+function sendOtp(req, res) {
+    try {
+        const { email, username } = req.body;
+
+        if (!email || !username) {
+            return res.render('otpVerification.ejs', {
+                mailID: email,
+                username: username,
+                message: 'Email and username are required to resend OTP.'
+            });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        const expiry = Date.now() + 5 * 60 * 1000;
+
+        const updateQuery = 'UPDATE users SET otp = ?, otp_expiry = ? WHERE mailID = ? AND username = ?';
+        db.query(updateQuery, [otp, expiry, email, username], (err, result) => {
+            if (err) {
+                console.error("Database error:", err);
+                return res.render('otpVerification.ejs', {
+                    mailID: email,
+                    username: username,
+                    message: 'Failed to update OTP in the database. Please try again.'
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.render('otpVerification.ejs', {
+                    mailID: email,
+                    username: username,
+                    message: 'No user found with that email or username.'
+                });
+            }
+
+            transporter.sendMail({
+                from: 'kushal0042@gmail.com',
+                to: email,
+                subject: 'Your WanderScript OTP',
+                text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+            }, (error, info) => {
+                if (error) {
+                    console.error('Error sending email:', error);
+                    return res.render('otpVerification.ejs', {
+                        mailID: email,
+                        username: username,
+                        message: 'Failed to send OTP email. Please try again.'
+                    });
+                }
+
+                console.log('Email sent:', info.response);
+                return res.render('otpVerification.ejs', {
+                    mailID: email,
+                    username: username,
+                    otpExpiry: expiry,
+                    message: 'OTP sent successfully. Check your email.'
+                });
+            });
+        });
+    } catch (error) {
+        console.error("Error in sending OTP:", error);
+        return res.render('otpVerification.ejs', {
+            mailID: null,
+            message: 'An error occurred while sending the OTP.'
+        });
+    }
+}
 
 // POST Sign Up
 app.post('/WanderScript/signup', async (req, res) => {
