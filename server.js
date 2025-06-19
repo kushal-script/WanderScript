@@ -274,7 +274,7 @@ app.post('/WanderScript/signup', async (req, res) => {
 
 // POST Sign In
 app.post('/WanderScript/signin', (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
 
     db.query('SELECT * FROM users WHERE mailID = ?', [email], async (err, results) => {
         if (err) throw err;
@@ -282,17 +282,20 @@ app.post('/WanderScript/signin', (req, res) => {
             res.redirect('/WanderScript/signup?message=' + encodeURIComponent('User not found! Redirecting to sign up.'));
         } else {
             const user = results[0];
-            const match = await bcrypt.compare(password, user.password);
+            const match1 = await bcrypt.compare(password, user.password);
+            const match2 = await bcrypt.compare(username, user.username);
+            const match3 = await bcrypt.compare(email, user.mailID);
 
-            if (match) {
+            if (match1 && match2 && match3) {
                 req.session.user = {
                     id: user.id,
                     username: user.username,
-                    email: user.mailID
+                    email: user.mailID,
+                    password: user.password
                 };
-                res.send(`Welcome, ${user.username}!`);
+                res.render('homeFeed.ejs', {message: 'Let the blogging begin!'});
             } else {
-                res.redirect('/WanderScript/signin?message=' + encodeURIComponent('Incorrect password.'));
+                res.redirect('/WanderScript/signin?message=' + encodeURIComponent('Incorrect credentials.'));
             }
         }
     });

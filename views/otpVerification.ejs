@@ -39,6 +39,7 @@
                 <button class="secondary-btn">Back to Sign In</button>
             </a>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             <% if (typeof otpExpiry !== 'undefined') { %>
                 const expiryTime = <%= otpExpiry %>;
@@ -62,6 +63,56 @@
                 updateTimer();
             <% } %>
         </script>
-    </div>
+        <% if (message === 'Email, username, and OTP are required.') { %>
+            <script>
+              Swal.fire({
+                title: 'WanderScript',
+                text: "Email, username, and OTP are required.",
+                icon: "error",
+                confirmButtonColor: '#007bff'
+              });
+            </script>
+            <% } %>
+        <% if (message === 'Internal server error.') { %>
+                <script>
+                  Swal.fire({
+                    title: 'WanderScript',
+                    text: "Internal server error.",
+                    icon: "error",
+                    confirmButtonColor: '#007bff'
+                  });
+                </script>
+                <% } %>
+                <% if (message === 'No user found with this email or username.') { %>
+                    <script>
+                      Swal.fire({
+                        title: 'WanderScript',
+                        text: "No user found with this email or username.",
+                        icon: "info",
+                        confirmButtonColor: '#007bff'
+                      });
+                    </script>
+                    <% } %>
+                    <% if (message === 'Invalid or expired OTP. Please try again.') { %>
+                        <script>
+                          Swal.fire({
+                            title: 'WanderScript',
+                            text: "Invalid or expired OTP. Please try again.",
+                            icon: "warning",
+                            confirmButtonColor: '#007bff'
+                          });
+                        </script>
+                        <% } %>
+                        <% if (message === 'An unexpected error occurred during OTP verification.') { %>
+                            <script>
+                              Swal.fire({
+                                title: 'WanderScript',
+                                text: "An unexpected error occurred during OTP verification.",
+                                icon: "error",
+                                confirmButtonColor: '#007bff'
+                              });
+                            </script>
+                            <% } %>
+                            
 </body>
 </html>
