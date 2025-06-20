@@ -53,7 +53,9 @@ app.use(methodOverride('_method'));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/WanderScript/assets', express.static('public/assets'));
 
 // GET Sign Up
 app.get('/WanderScript/signup', (req, res) => {
@@ -283,9 +285,7 @@ app.post('/WanderScript/signin', (req, res) => {
                     username: user.username,
                     email: user.mailID
                 };
-                res.render('homeFeed.ejs', { 
-                    message: 'Let the blogging begin!',
-                    messageType: 'success' });
+                return res.redirect('/WanderScript/profile');
             } else {
                 res.redirect('/WanderScript/signin?message=Incorrect credentials&info=error');
             }
@@ -334,6 +334,68 @@ app.post('/WanderScript/reset-password', async (req, res) => {
             messageType: 'warning' });
     }
 });
+
+app.get('/WanderScript/profile', async (req, res) => {
+    try{
+        const sessionUser = req.session.user;
+        if(!sessionUser || !sessionUser.email){
+            return res.redirect('/WanderScript/signin?message=Please sign in view your profile&info=warning');
+        }
+
+        //fetching user info by checking email
+        let getInfo = `SELECT userID, username, bio, youtube_link, linkedin_link, instagram_link FROM users WHERE mailID = ?`;
+        let email = sessionUser.email;
+        const [userRows] = await db.promise().query(getInfo, [email]);
+
+        if(userRows.length === 0){
+            return res.redirect('/WanderScript/signin?message=User not found&info=error')
+        }
+
+        const user = userRows[0];
+        const userID = user.userID;
+
+        //followers count
+        const [[{followerCount}]] = await db.promise().query(
+            `SELECT COUNT(*) AS followerCount FROM followers WHERE followingID = ?`,
+            [userID]
+        );
+
+        //total upvotes count
+        const [[{ totalUpvotes }]] = await db.promise().query(
+            `SELECT COUNT(*) AS totalUpvotes FROM post_upvotes 
+             WHERE postID IN (SELECT postID FROM posts WHERE userID = ?)`,
+            [userID]
+        );
+
+        //total posts
+        const [posts] = await db.promise().query(
+            `SELECT p.postID AS _id, p.title, p.description AS info,
+                    (SELECT COUNT(*) FROM post_upvotes pu WHERE pu.postID = p.postID) AS upvotes
+             FROM posts p WHERE p.userID = ?
+             ORDER BY p.created_at DESC`,
+            [userID]
+        );
+
+        //passing data
+        const profileData = {
+            username: user.username,
+            bio: user.bio || 'No bio yet.',
+            youtube: user.youtube_link,
+            linkedin: user.linkedin_link,
+            instagram: user.instagram_link,
+            followers: Array(followerCount).fill('•'),
+            totalUpvotes,
+            posts
+        };
+
+        res.render('currentUser', { user: profileData });
+
+        console.error("Error loading profile:", err);
+        res.status(500).send("An unexpected error occurred.");
+    }
+    catch(err){
+    }
+})
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
