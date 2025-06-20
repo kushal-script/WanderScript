@@ -341,14 +341,14 @@ app.post('/WanderScript/reset-password', async (req, res) => {
     }
 });
 
+//user profile rendering
 app.get('/WanderScript/profile', async (req, res) => {
     try {
         const sessionUser = req.session.user;
         if (!sessionUser || !sessionUser.email) {
-            return res.redirect('/WanderScript/signin?message=Please sign in view your profile&info=warning');
+            return res.redirect('/WanderScript/signin?message=Please sign in to view your profile&info=warning');
         }
 
-        //fetching user info by checking email
         let getInfo = `SELECT userID, username, bio, youtube_link, linkedin_link, instagram_link FROM users WHERE mailID = ?`;
         let email = sessionUser.email;
         const [userRows] = await db.promise().query(getInfo, [email]);
