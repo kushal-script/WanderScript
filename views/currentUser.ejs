@@ -49,7 +49,7 @@
         </div>
 
         <div class="action-buttons">
-            <a href="/profile/edit" class="action-btn edit-profile">✏️ Edit Profile</a>
+            <a href="/WanderScript/profile/edit" class="action-btn edit-profile">✏️ Edit Profile</a>
             <a href="/dashboard" class="action-btn dashboard">📊 Dashboard</a>
         </div>
 
@@ -66,14 +66,36 @@
                     <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
                     <div class="post-actions">
                         <a href="/WanderScript/posts/edit/<%= post._id %>" class="btn-edit">✏️ Edit Post</a>
-                        <form action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display:inline;">
-                            <button type="submit" class="btn-delete">🗑️ Delete Post</button>
+                        <form id="delete-form-<%= post._id %>" action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display: inline;">
+                            <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">🗑️ Delete Post</button>
                         </form>
                     </div>
                 </div>
             </div>
             <% }) %>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmDelete(postId) {
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "This action will permanently delete your post.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              document.getElementById(`delete-form-${postId}`).submit();
+            }
+          });
+        }
+      </script>
+
 </body>
 
 </html>

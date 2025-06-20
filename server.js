@@ -525,6 +525,106 @@ app.put('/WanderScript/posts/edit/:id', async (req, res) => {
     }
 });
 
+//Get edit profile
+app.get('/WanderScript/profile/edit', async (req, res) => {
+    if (!req.session.user || !req.session.user.email) {
+        return res.redirect('/WanderScript/signin?message=Please login to edit profile&info=warning');
+    }
+
+    try {
+        const [[user]] = await db.promise().query(
+            `SELECT username, bio, linkedin_link, instagram_link, youtube_link FROM users WHERE mailID = ?`,
+            [req.session.user.email]
+        );
+
+        if (!user) {
+            return res.redirect('/WanderScript/signin?message=User not found&info=error');
+        }
+
+        res.render('editProfile', {
+            user: {
+                username: user.username,
+                bio: user.bio || '',
+                linkedin: user.linkedin_link || '',
+                instagram: user.instagram_link || '',
+                youtube: user.youtube_link || ''
+            },
+            message: null
+        });
+
+    } catch (err) {
+        console.error("Error loading profile edit page:", err);
+        res.status(500).send("Error loading edit profile page.");
+    }
+});
+
+//Put edit profile
+app.put('/WanderScript/profile/edit', async (req, res) => {
+    const { username, bio, linkedin, instagram, youtube } = req.body;
+
+    if (!req.session.user || !req.session.user.email) {
+        return res.redirect('/WanderScript/signin?message=Please login to edit profile&info=warning');
+    }
+
+    try {
+        const updateQuery = `
+            UPDATE users 
+            SET username = ?, bio = ?, linkedin_link = ?, instagram_link = ?, youtube_link = ?
+            WHERE mailID = ?
+        `;
+
+        await db.promise().query(updateQuery, [
+            username, bio, linkedin, instagram, youtube, req.session.user.email
+        ]);
+
+        req.session.user.username = username;
+
+        res.redirect('/WanderScript/profile');
+
+    } catch (err) {
+        console.error("Error updating profile:", err);
+        res.status(500).send("Error updating profile.");
+    }
+});
+
+//delete post
+app.post('/WanderScript/posts/delete/:id', async (req, res) => {
+    const postID = req.params.id;
+
+    if (!req.session.user || !req.session.user.email) {
+        return res.redirect('/WanderScript/signin?message=Please login to delete posts&info=warning');
+    }
+
+    try {
+        const [[user]] = await db.promise().query(
+            `SELECT userID FROM users WHERE mailID = ?`,
+            [req.session.user.email]
+        );
+
+        if (!user) {
+            return res.redirect('/WanderScript/signin?message=User not found&info=error');
+        }
+
+        const [postRows] = await db.promise().query(
+            `SELECT * FROM posts WHERE postID = ? AND userID = ?`,
+            [postID, user.userID]
+        );
+
+        if (postRows.length === 0) {
+            return res.status(403).send("Unauthorized or post not found.");
+        }
+
+        await db.promise().query(`DELETE FROM posts WHERE postID = ?`, [postID]);
+
+        await db.promise().query(`DELETE FROM post_upvotes WHERE postID = ?`, [postID]);
+
+        res.redirect('/WanderScript/profile');
+    } catch (err) {
+        console.error("Error deleting post:", err);
+        res.status(500).send("Error deleting post.");
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 }
