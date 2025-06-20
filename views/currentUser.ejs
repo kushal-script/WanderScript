@@ -66,7 +66,7 @@
                     <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
                     <div class="post-actions">
                         <form id="delete-form-<%= post._id %>" action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display: inline;">
-                            <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">🗑️ Delete Post</button>
+                            <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')"><img src="/assets/icons8-delete-24.png" alt=""> Delete Post</button>
                         </form>
                     </div>
                 </div>
