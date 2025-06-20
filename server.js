@@ -437,7 +437,7 @@ app.get('/WanderScript/posts/new', (req, res) => {
     if (!req.session.user || !req.session.user.email) {
         return res.redirect('/WanderScript/signin?message=Please login to post&info=warning');
     }
-    res.render('newPost');
+    res.render('newPost', {user: req.session.user});
 });
 
 // POST New Post Submission
@@ -471,6 +471,57 @@ app.post('/WanderScript/posts/new', async (req, res) => {
     } catch (err) {
         console.error("Error creating post:", err);
         res.status(500).send("Failed to create post. Try again.");
+    }
+});
+
+// GET Edit Post Page
+app.get('/WanderScript/posts/edit/:id', async (req, res) => {
+    const postID = req.params.id;
+
+    try {
+        const [[post]] = await db.promise().query(
+            `SELECT postID AS _id, title, description AS info FROM posts WHERE postID = ?`,
+            [postID]
+        );
+
+        if (!post) {
+            return res.status(404).send("Post not found.");
+        }
+
+        res.render('editPost', {
+            post,
+            user: req.session.user,
+            message: null
+        });
+
+    } catch (err) {
+        console.error("Error loading post for editing:", err);
+        res.status(500).send("Internal server error.");
+    }
+});
+
+// PUT Edit Post Logic
+app.put('/WanderScript/posts/edit/:id', async (req, res) => {
+    const postID = req.params.id;
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+        return res.render('editPost', {
+            message: "Both fields required.",
+            post: { _id: postID, title, info: description },
+            user: req.session.user
+        });
+    }
+
+    try {
+        await db.promise().query(
+            `UPDATE posts SET title = ?, description = ? WHERE postID = ?`,
+            [title, description, postID]
+        );
+        res.redirect('/WanderScript/profile');
+    } catch (err) {
+        console.error("Error updating post:", err);
+        res.status(500).send("Error saving changes.");
     }
 });
 

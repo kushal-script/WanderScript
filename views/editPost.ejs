@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Post - WanderScript</title>
+  <link rel="stylesheet" href="/css/profile.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
+    <a href="/WanderScript/profile" class="username">@<%= typeof user !== 'undefined' ? user.username : 'You' %></a>
+  </nav>
+
+  <div class="profile-wrapper">
+    <div class="post-card">
+      <h2 style="color:#00f0ff; font-size: 1.5rem;">✏️ Edit Your Post</h2>
+
+      <% if (typeof message !== 'undefined' && message) { %>
+        <p style="color: crimson; margin: 1rem 0;"><%= message %></p>
+      <% } %>
+
+      <form action="/WanderScript/posts/edit/<%= post._id %>?_method=PUT" method="POST" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+        <input
+          type="text"
+          name="title"
+          placeholder="Edit your post title"
+          required
+          value="<%= post.title %>"
+          style="padding: 0.8rem; border-radius: 10px; border: 1px solid #888; background-color: #121212; color: white;"
+        />
+
+        <textarea
+          name="description"
+          placeholder="Edit your post content..."
+          rows="8"
+          required
+          style="padding: 0.8rem; border-radius: 10px; border: 1px solid #888; background-color: #121212; color: white;"
+        ><%= post.info %></textarea>
+
+        <div class="action-buttons">
+          <button type="submit" class="action-btn dashboard">✏️ Edit</button>
+          <a href="/WanderScript/profile" class="action-btn edit-profile">🔙 Back to Profile</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

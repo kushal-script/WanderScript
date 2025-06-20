@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar">
         <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
-        <span class="username">@You%></span>
+        <span class="username">@<%=user.username%></span>
         <div class="icons">
             <a href="<%= user.linkedin %>"><img src="/assets/linkedin_3536569.png" alt="linkedin"></a>
             <a href="<%= user.instagram %>"><img src="/assets/instagram_1400829.png" alt="instagram"></a>
@@ -65,8 +65,8 @@
                 <div class="post-footer">
                     <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
                     <div class="post-actions">
-                        <a href="/posts/edit/<%= post._id %>" class="btn-edit">✏️ Edit Post</a>
-                        <form action="/posts/delete/<%= post._id %>" method="POST" style="display:inline;">
+                        <a href="/WanderScript/posts/edit/<%= post._id %>" class="btn-edit">✏️ Edit Post</a>
+                        <form action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display:inline;">
                             <button type="submit" class="btn-delete">🗑️ Delete Post</button>
                         </form>
                     </div>
