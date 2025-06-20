@@ -59,33 +59,34 @@ app.use('/WanderScript/assets', express.static('public/assets'));
 
 // GET Sign Up
 app.get('/WanderScript/signup', (req, res) => {
-    res.render('signup.ejs', { 
+    res.render('signup.ejs', {
         message: req.query.message || null,
-        messageType: req.query.info });
+        messageType: req.query.info
+    });
 });
 
 // GET Sign In
 app.get('/WanderScript/signin', (req, res) => {
-    res.render('signin.ejs', { 
+    res.render('signin.ejs', {
         message: req.query.message || null,
         messageType: req.query.info
-     });
+    });
 });
 
 // GET Forgot Password
 app.get('/WanderScript/forgot-password', (req, res) => {
-    res.render('forgotPassword.ejs', { 
+    res.render('forgotPassword.ejs', {
         message: req.query.message || null,
         messageType: req.query.info
-     });
+    });
 });
 
 // GET Verify OTP
 app.get('/WanderScript/verify-otp', (req, res) => {
-    res.render('otpVerification.ejs', { 
+    res.render('otpVerification.ejs', {
         message: req.query.message || null,
         messageType: req.query.info
-     });
+    });
 });
 
 //Post verify otp
@@ -298,9 +299,10 @@ app.post('/WanderScript/reset-password', async (req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
-        return res.render('forgotPassword.ejs', { 
+        return res.render('forgotPassword.ejs', {
             message: "Passwords do not match!",
-            messageType: 'error' });
+            messageType: 'error'
+        });
     }
 
     try {
@@ -311,34 +313,38 @@ app.post('/WanderScript/reset-password', async (req, res) => {
         db.query(updateQuery, [hashedPassword, email], (err, result) => {
             if (err) {
                 console.error("DB error:", err);
-                return res.render('forgotPassword.ejs', { 
+                return res.render('forgotPassword.ejs', {
                     message: "Database error.",
-                    messageType: 'error' });
+                    messageType: 'error'
+                });
             }
 
             if (result.affectedRows === 0) {
-                return res.render('forgotPassword.ejs', { 
+                return res.render('forgotPassword.ejs', {
                     message: "No user found with that email.",
-                    messageType: 'error' });
+                    messageType: 'error'
+                });
             }
 
-            res.render('forgotPassword.ejs', { 
+            res.render('forgotPassword.ejs', {
                 message: "Password successfully reset!",
-                messageType: 'success' });
+                messageType: 'success'
+            });
         });
 
     } catch (error) {
         console.error("Error:", error);
-        res.render('forgotPassword.ejs', { 
+        res.render('forgotPassword.ejs', {
             message: "Something went wrong. Try again.",
-            messageType: 'warning' });
+            messageType: 'warning'
+        });
     }
 });
 
 app.get('/WanderScript/profile', async (req, res) => {
-    try{
+    try {
         const sessionUser = req.session.user;
-        if(!sessionUser || !sessionUser.email){
+        if (!sessionUser || !sessionUser.email) {
             return res.redirect('/WanderScript/signin?message=Please sign in view your profile&info=warning');
         }
 
@@ -347,7 +353,7 @@ app.get('/WanderScript/profile', async (req, res) => {
         let email = sessionUser.email;
         const [userRows] = await db.promise().query(getInfo, [email]);
 
-        if(userRows.length === 0){
+        if (userRows.length === 0) {
             return res.redirect('/WanderScript/signin?message=User not found&info=error')
         }
 
@@ -355,7 +361,7 @@ app.get('/WanderScript/profile', async (req, res) => {
         const userID = user.userID;
 
         //followers count
-        const [[{followerCount}]] = await db.promise().query(
+        const [[{ followerCount }]] = await db.promise().query(
             `SELECT COUNT(*) AS followerCount FROM followers WHERE followingID = ?`,
             [userID]
         );
@@ -393,9 +399,80 @@ app.get('/WanderScript/profile', async (req, res) => {
         console.error("Error loading profile:", err);
         res.status(500).send("An unexpected error occurred.");
     }
-    catch(err){
+    catch (err) {
     }
-})
+});
+
+//readmore 1
+app.get('/posts/:id', async (req, res) => {
+    const postID = req.params.id;
+
+    try {
+        const [[post]] = await db.promise().query(
+            `SELECT p.title, p.description AS info, p.created_at,
+                    u.username,
+                    (SELECT COUNT(*) FROM post_upvotes WHERE postID = ?) AS upvotes
+             FROM posts p
+             JOIN users u ON p.userID = u.userID
+             WHERE p.postID = ?`,
+            [postID, postID]
+        );
+
+        if (!post) {
+            return res.status(404).send("Post not found.");
+        }
+
+        res.render('readMore1.ejs', {
+            post
+        });
+
+    } catch (err) {
+        console.error("Error fetching post:", err);
+        res.status(500).send("Internal Server Error.");
+    }
+});
+
+// GET New Post Page
+app.get('/WanderScript/posts/new', (req, res) => {
+    if (!req.session.user || !req.session.user.email) {
+        return res.redirect('/WanderScript/signin?message=Please login to post&info=warning');
+    }
+    res.render('newPost');
+});
+
+// POST New Post Submission
+app.post('/WanderScript/posts/new', async (req, res) => {
+    const { title, description } = req.body;
+    const sessionUser = req.session.user;
+
+    if (!title || !description) {
+        return res.render('newPost', {
+            message: "Title and description are required.",
+            messageType: "error"
+        });
+    }
+
+    try {
+        const [[user]] = await db.promise().query(
+            `SELECT userID FROM users WHERE mailID = ?`, [sessionUser.email]
+        );
+
+        if (!user) {
+            return res.redirect('/WanderScript/signin?message=User not found&info=error');
+        }
+
+        await db.promise().query(
+            `INSERT INTO posts (postID, userID, title, description, created_at)
+             VALUES (?, ?, ?, ?, NOW())`,
+            [uuidv4(), user.userID, title, description]
+        );
+
+        res.redirect('/WanderScript/profile');
+    } catch (err) {
+        console.error("Error creating post:", err);
+        res.status(500).send("Failed to create post. Try again.");
+    }
+});
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
