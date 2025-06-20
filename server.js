@@ -404,19 +404,19 @@ app.get('/WanderScript/profile', async (req, res) => {
 });
 
 //readmore 1
-app.get('/posts/:id', async (req, res) => {
+app.get('/WanderScript/posts/readmore/:id', async (req, res) => {
     const postID = req.params.id;
 
     try {
         const [[post]] = await db.promise().query(
-            `SELECT p.title, p.description AS info, p.created_at,
-                    u.username,
-                    (SELECT COUNT(*) FROM post_upvotes WHERE postID = ?) AS upvotes
-             FROM posts p
-             JOIN users u ON p.userID = u.userID
-             WHERE p.postID = ?`,
-            [postID, postID]
-        );
+    `SELECT p.postID AS _id, p.title, p.description AS info, p.created_at,
+            u.username,
+            (SELECT COUNT(*) FROM post_upvotes WHERE postID = ?) AS upvotes
+     FROM posts p
+     JOIN users u ON p.userID = u.userID
+     WHERE p.postID = ?`,
+    [postID, postID]
+);
 
         if (!post) {
             return res.status(404).send("Post not found.");
@@ -474,8 +474,8 @@ app.post('/WanderScript/posts/new', async (req, res) => {
     }
 });
 
-// GET Edit Post Page
-app.get('/WanderScript/posts/edit/:id', async (req, res) => {
+// GET Edit read more
+app.get('/WanderScript/posts/readmore/edit/:id', async (req, res) => {
     const postID = req.params.id;
 
     try {
@@ -500,8 +500,8 @@ app.get('/WanderScript/posts/edit/:id', async (req, res) => {
     }
 });
 
-// PUT Edit Post Logic
-app.put('/WanderScript/posts/edit/:id', async (req, res) => {
+// PUT Edit read more
+app.put('/WanderScript/posts/readmore/edit/:id', async (req, res) => {
     const postID = req.params.id;
     const { title, description } = req.body;
 
@@ -518,7 +518,7 @@ app.put('/WanderScript/posts/edit/:id', async (req, res) => {
             `UPDATE posts SET title = ?, description = ? WHERE postID = ?`,
             [title, description, postID]
         );
-        res.redirect('/WanderScript/profile');
+        res.redirect(`/WanderScript/posts/readmore/${postID}`);
     } catch (err) {
         console.error("Error updating post:", err);
         res.status(500).send("Error saving changes.");

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Edit Post - WanderScript</title>
   <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/editPost.css"/>
 </head>
 <body>
   <nav class="navbar">
@@ -20,7 +21,7 @@
         <p style="color: crimson; margin: 1rem 0;"><%= message %></p>
       <% } %>
 
-      <form action="/WanderScript/posts/edit/<%= post._id %>?_method=PUT" method="POST" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+      <form action="/WanderScript/posts/readmore/edit/<%= post._id %>?_method=PUT" method="POST" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
         <input
           type="text"
           name="title"

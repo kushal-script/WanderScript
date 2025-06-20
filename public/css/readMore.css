@@ -1,0 +1,18 @@
+.username {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    background: linear-gradient(to right, #00f0ff22, #8e00ff22);
+    color: #ffffff;
+    text-shadow: 0 0 4px #00f0ff88;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin-left: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.username:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px #00f0ff55;
+    background: linear-gradient(to right, #00f0ff55, #8e00ff55);
+}

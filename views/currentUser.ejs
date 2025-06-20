@@ -61,11 +61,10 @@
                 <p>
                     <%= post.info.substring(0, 150) %>...
                 </p>
-                <a href="/posts/<%= post._id %>" class="read-more">Read more...</a>
+                <a href="/WanderScript/posts/readmore/<%= post._id %>" class="read-more">Read more...</a>
                 <div class="post-footer">
                     <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
                     <div class="post-actions">
-                        <a href="/WanderScript/posts/edit/<%= post._id %>" class="btn-edit">✏️ Edit Post</a>
                         <form id="delete-form-<%= post._id %>" action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display: inline;">
                             <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">🗑️ Delete Post</button>
                         </form>
