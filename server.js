@@ -282,7 +282,7 @@ app.post('/WanderScript/signin', (req, res) => {
 
             if (match1 && match2 && match3) {
                 req.session.user = {
-                    id: user.id,
+                    id: user.userID,
                     username: user.username,
                     email: user.mailID
                 };
@@ -622,36 +622,34 @@ app.post('/WanderScript/posts/delete/:id', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-}
-);
-
 //home feed get
 app.get('/WanderScript/homefeed', async (req, res) => {
-    try {
-        const currentUser = req.session.user;
-        if (!currentUser) {
-            return res.redirect('/WanderScript/signin?message=Login to view feed&info=warning');
-        }
+    const currentUser = req.session.user;
+    if (!currentUser) {
+        return res.redirect('/WanderScript/signin?message=Login to view feed&info=warning');
+    }
 
+    const userID = currentUser.userID || currentUser.id;
+    console.log("Current User ID:", userID);
+
+    try {
         const [posts] = await db.promise().query(`
             SELECT p.postID, p.title, p.description, p.created_at,
                    u.userID, u.username,
                    (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes
             FROM posts p
             JOIN users u ON p.userID = u.userID
+            WHERE u.userID != ?
             ORDER BY p.created_at DESC
-        `);
+        `, [userID]);
 
-        // Get followings of the current user
         const [followingRows] = await db.promise().query(
             `SELECT followingID FROM followers WHERE followerID = ?`,
-            [currentUser.id]
+            [userID]
         );
+
         const followingIDs = new Set(followingRows.map(row => row.followingID));
 
-        // Attach isFollowing flag to each post
         const postsWithFollowFlag = posts.map(post => ({
             ...post,
             isFollowing: followingIDs.has(post.userID)
@@ -669,16 +667,23 @@ app.get('/WanderScript/homefeed', async (req, res) => {
 
 //follow post
 app.post('/WanderScript/follow/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/WanderScript/login');
+    }
+
     const followerID = req.session.user.id;
     const followingID = req.params.id;
 
-    if (followerID === followingID) return res.redirect('/WanderScript/homefeed');
+    if (followerID === followingID) {
+        return res.redirect('/WanderScript/homefeed');
+    }
 
     await db.promise().query(
         `INSERT IGNORE INTO followers (followerID, followingID) VALUES (?, ?)`,
         [followerID, followingID]
     );
-    res.redirect('/WanderScript/homefeed');
+
+    res.redirect(`/WanderScript/user/${followingID}`);
 });
 
 //unfollow post
@@ -690,19 +695,33 @@ app.post('/WanderScript/unfollow/:id', async (req, res) => {
         `DELETE FROM followers WHERE followerID = ? AND followingID = ?`,
         [followerID, followingID]
     );
-    res.redirect('/WanderScript/homefeed');
+    res.redirect(`/WanderScript/user/${followingID}`);
 });
 
-//upvote post
 app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/WanderScript/login');
+    }
+
     const userID = req.session.user.id;
     const postID = req.params.id;
+
+    // Get the post's owner's ID to redirect to their profile
+    const [[owner]] = await db.promise().query(
+        `SELECT userID FROM posts WHERE postID = ?`,
+        [postID]
+    );
+
+    if (!owner) {
+        return res.status(404).send('Post not found');
+    }
 
     await db.promise().query(
         `INSERT IGNORE INTO post_upvotes (postID, userID) VALUES (?, ?)`,
         [postID, userID]
     );
-    res.redirect('/WanderScript/homefeed');
+
+    res.redirect(`/WanderScript/user/${owner.userID}`);
 });
 
 //other user get
@@ -733,8 +752,16 @@ app.get('/WanderScript/user/:id', async (req, res) => {
         isFollowing: Boolean(isFollowing)
     };
 
-    res.render('otherUser', { user: profileData });
+    res.render('otherUser', {
+        user: profileData,
+        currentUser: currentUser
+    });
 });
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+}
+);
 
 // db.query('select *from users;', (req, res) => {
 //     console.log(res);

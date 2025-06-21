@@ -10,8 +10,8 @@
 
 <body>
     <nav class="navbar">
-        <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
-        <span class="username">@<%=user.username%></span>
+        <a href="/Wanderscript/homefeed"><img src="/assets/icons8-home-50.png" alt="home"></a>
+        <a href="/WanderScript/profile" class="username">@<%= currentUser.username %></a>
         <div class="icons">
             <a href="<%= user.linkedin %>"><img src="/assets/linkedin_3536569.png" alt="linkedin"></a>
             <a href="<%= user.instagram %>"><img src="/assets/instagram_1400829.png" alt="instagram"></a>
@@ -27,12 +27,12 @@
                 <h2 class="profile-username">@<%= user.username %></h2>
                 <div class="follow-wrapper">
                     <% if (!user.isFollowing) { %>
-                        <form action="/follow/<%= user._id %>" method="POST">
+                        <form action="/WanderScript/follow/<%= user._id %>" method="POST">
                             <button type="submit" class="follow-btn">➕ Follow</button>
                         </form>
                     <% } else { %>
-                        <form action="/unfollow/<%= user._id %>" method="POST">
-                            <button type="submit" class="unfollow-btn">✔️ Following</button>
+                        <form action="/WanderScript/unfollow/<%= user._id %>" method="POST">
+                            <button type="submit" class="unfollow-btn">Following</button>
                         </form>
                     <% } %>
                 </div>
@@ -54,8 +54,8 @@
     
             <!-- Mail & Message Buttons Below Bio/Stats -->
             <div class="action-buttons">
-                <a href="/WanderScript/profile/edit" class="action-btn edit-profile">✉️ Mail</a>
-                <a href="/dashboard" class="action-btn dashboard">📝 Message</a>
+                <a href="/WanderScript" class="action-btn edit-profile">✉️ Mail</a>
+                <a href="/WanderScript" class="action-btn dashboard">📝 Message</a>
             </div>
     
         </div>
@@ -66,7 +66,9 @@
                 <p><%= post.info.substring(0, 150) %>...</p>
                 <a href="/WanderScript/posts/readmore/<%= post._id %>" class="read-more">Read more...</a>
                 <div class="post-footer">
-                    <span>Up Vote ⬆️ <%= post.upvotes %></span>
+                    <form action="/WanderScript/posts/upvote/<%= post._id %>" method="POST">
+                        <button type="submit" class="upvote-btn">⬆️ Upvote (<%= post.upvotes %>)</button>
+                    </form>
                 </div>
             </div>
         <% }) %>

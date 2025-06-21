@@ -7,10 +7,16 @@
     <link rel="stylesheet" href="/css/homeFeed.css" />
 </head>
 <body>
-    <nav class="navbar">
-        <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
-        <span class="username">@<%= currentUser.username %></span>
-    </nav>
+    <div class="navbar-wrapper">
+        <nav class="navbar">
+            <span class="app-logo">WanderScript</span>
+            <a href="/WanderScript/profile" class="username">@<%= currentUser.username %></a>
+        </nav>
+    
+        <div class="search-card" onclick="expandSearch()">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍   Search users ..." onblur="collapseSearch()" />
+        </div>
+    </div>
 
     <div class="profile-wrapper">
         <h2 class="profile-username">🌐 Global Feed</h2>
@@ -38,7 +44,7 @@
                         <% if (post.userID !== currentUser.id) { %>
                             <% if (post.isFollowing) { %>
                                 <form action="/WanderScript/unfollow/<%= post.userID %>" method="POST">
-                                    <button type="submit" class="unfollow-btn">✔️ Following</button>
+                                    <button type="submit" class="unfollow-btn">Following</button>
                                 </form>
                             <% } else { %>
                                 <form action="/WanderScript/follow/<%= post.userID %>" method="POST">
