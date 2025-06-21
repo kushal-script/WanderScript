@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WanderScript - Home Feed</title>
+    <link rel="stylesheet" href="/css/homeFeed.css" />
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
+        <span class="username">@<%= currentUser.username %></span>
+    </nav>
+
+    <div class="profile-wrapper">
+        <h2 class="profile-username">🌐 Global Feed</h2>
+
+        <% allPosts.forEach(post => { %>
+            <div class="post-card">
+                <h4><%= post.title %></h4>
+                <p><%= post.description.substring(0, 150) %>...</p>
+
+                <div class="post-footer">
+                    <div>
+                        ✍️ Posted by 
+                        <a href="/WanderScript/user/<%= post.userID %>" style="color:#00f0ff; text-decoration:none;">
+                            @<%= post.username %>
+                        </a>
+                    </div>
+
+                    <div class="post-actions">
+                        <!-- Upvote Form -->
+                        <form action="/WanderScript/posts/upvote/<%= post.postID %>" method="POST">
+                            <button type="submit" class="btn-edit">⬆️ Upvote (<%= post.upvotes %>)</button>
+                        </form>
+
+                        <!-- Follow/Unfollow Form -->
+                        <% if (post.userID !== currentUser.id) { %>
+                            <% if (post.isFollowing) { %>
+                                <form action="/WanderScript/unfollow/<%= post.userID %>" method="POST">
+                                    <button type="submit" class="unfollow-btn">✔️ Following</button>
+                                </form>
+                            <% } else { %>
+                                <form action="/WanderScript/follow/<%= post.userID %>" method="POST">
+                                    <button type="submit" class="follow-btn">➕ Follow</button>
+                                </form>
+                            <% } %>
+                        <% } %>
+                    </div>
+                </div>
+
+                <a href="/WanderScript/posts/readmore/<%= post.postID %>" class="read-more">Read more...</a>
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>

@@ -1,0 +1,269 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0e0e0e, #1c1c1c);
+    color: #f0f0f0;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navbar {
+    width: 100%;
+    max-width: 980px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 14px rgba(0, 255, 255, 0.05);
+}
+
+.navbar a,
+.navbar span {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 1rem;
+    margin: 0 0.5rem;
+}
+
+.profile-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.username {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    color: #ffffff;
+    text-shadow: 0 0 4px #00f0ff88;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin-left: 1rem;
+}
+
+.navbar .icons a img,
+.navbar a img {
+    width: 28px;
+    height: 28px;
+    margin-left: 1rem;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    filter: invert(1) brightness(1.2) contrast(1.2);
+}
+
+.navbar .icons a img:hover,
+.navbar a img:hover {
+    transform: scale(1.15);
+    filter: invert(1) brightness(1.7) contrast(1.4) drop-shadow(0 0 6px #00f0ff);
+}
+
+.profile-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 2rem;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-username {
+    font-size: 2rem;
+    color: #00f0ff;
+    text-shadow: 0 0 6px #00f0ff99;
+}
+
+.bio-and-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.bio,
+.stats {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.bio h3 {
+    font-size: 1.4rem;
+    color: #00f0ff;
+    margin-bottom: 0.5rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.action-btn {
+    flex: 1 1 33%;
+    text-align: center;
+    padding: 0.8rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.follow-btn,
+.unfollow-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+
+.follow-btn {
+    background-color: #003355;
+    border: 1px solid #00bfff;
+    color: #00bfff;
+}
+
+.follow-btn:hover {
+    background-color: #00bfff11;
+    box-shadow: 0 0 10px #00bfff88;
+    transform: scale(1.05);
+}
+
+.unfollow-btn {
+    background-color: #004422;
+    border: 1px solid #00ff99;
+    color: #00ff99;
+}
+
+.unfollow-btn:hover {
+    background-color: #00ff9911;
+    box-shadow: 0 0 10px #00ff9988;
+    transform: scale(1.05);
+}
+
+.edit-profile {
+    background-color: #220016;
+    border: 1px solid #ff4d88;
+    color: #ff4d88;
+}
+
+.edit-profile:hover {
+    background-color: #ff4d8811;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px #ff4d8899;
+}
+
+.dashboard {
+    background-color: #222;
+    border: 1px solid #00f0ff;
+    color: #00f0ff;
+}
+
+.dashboard:hover {
+    background-color: #00f0ff11;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px #00f0ff88;
+}
+
+.post-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.post-card h4 {
+    font-size: 1.2rem;
+    color: #00f0ff;
+    margin-bottom: 0.5rem;
+}
+
+.post-card p {
+    color: #ccc;
+    margin-bottom: 0.6rem;
+}
+
+.read-more {
+    color: #8e00ff;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .bio-and-stats {
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        flex: 1 1 100%;
+    }
+}

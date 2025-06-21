@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WanderScript - Profile</title>
-    <link rel="stylesheet" href="/css/profile.css" />
+    <link rel="stylesheet" href="/css/otherUser.css" />
 </head>
 
 <body>
@@ -21,53 +21,55 @@
 
     <div class="profile-wrapper">
         <div class="profile-header">
-            <h2 class="profile-username">@<%= user.username %></h2>
-        
+    
+            <!-- Username + Follow Button -->
+            <div class="profile-top">
+                <h2 class="profile-username">@<%= user.username %></h2>
+                <div class="follow-wrapper">
+                    <% if (!user.isFollowing) { %>
+                        <form action="/follow/<%= user._id %>" method="POST">
+                            <button type="submit" class="follow-btn">➕ Follow</button>
+                        </form>
+                    <% } else { %>
+                        <form action="/unfollow/<%= user._id %>" method="POST">
+                            <button type="submit" class="unfollow-btn">✔️ Following</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+    
+            <!-- Bio and Stats side by side -->
             <div class="bio-and-stats">
                 <div class="bio">
                     <h3>Bio</h3>
                     <p><%= user.bio %></p>
                 </div>
-        
+    
                 <div class="stats">
                     <div><strong>Posts</strong><br><%= user.posts.length %></div>
                     <div><strong>UpVotes</strong><br><%= user.totalUpvotes %></div>
                     <div><strong>Followers</strong><br><%= user.followers.length %></div>
                 </div>
             </div>
+    
+            <!-- Mail & Message Buttons Below Bio/Stats -->
+            <div class="action-buttons">
+                <a href="/WanderScript/profile/edit" class="action-btn edit-profile">✉️ Mail</a>
+                <a href="/dashboard" class="action-btn dashboard">📝 Message</a>
+            </div>
+    
         </div>
-        </div>
-
-        <div class="action-buttons">
-            <a href="/WanderScript/profile/edit" class="action-btn edit-profile">✉️ Mail</a>
-        
-            <% if (!user.isFollowing) { %>
-                <form action="/follow/<%= user._id %>" method="POST">
-                    <button type="submit" class="action-btn follow-btn">➕ Follow</button>
-                </form>
-            <% } else { %>
-                <form action="/unfollow/<%= user._id %>" method="POST">
-                    <button type="submit" class="action-btn unfollow-btn">✔️ Following</button>
-                </form>
-            <% } %>
-        
-            <a href="/dashboard" class="action-btn dashboard">📝 Message</a>
-        </div>
-
-        <% user.posts.forEach(post=> { %>
+    
+        <% user.posts.forEach(post => { %>
             <div class="post-card">
-                <h4>
-                    <%= post.title %>
-                </h4>
-                <p>
-                    <%= post.info.substring(0, 150) %>...
-                </p>
+                <h4><%= post.title %></h4>
+                <p><%= post.info.substring(0, 150) %>...</p>
                 <a href="/WanderScript/posts/readmore/<%= post._id %>" class="read-more">Read more...</a>
                 <div class="post-footer">
                     <span>Up Vote ⬆️ <%= post.upvotes %></span>
                 </div>
             </div>
-            <% }) %>
+        <% }) %>
     </div>
 
 </body>

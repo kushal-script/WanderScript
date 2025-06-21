@@ -1,0 +1,220 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0e0e0e, #1c1c1c);
+    color: #f0f0f0;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    max-width: 980px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 14px rgba(0, 255, 255, 0.05);
+}
+
+.navbar a img {
+    width: 28px;
+    height: 28px;
+    filter: invert(1) brightness(1.2) contrast(1.2);
+    transition: all 0.3s ease;
+}
+
+.navbar a img:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 6px #00f0ff);
+}
+
+.username {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 4px #00f0ff88;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+/* Feed Container */
+.profile-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 2rem;
+}
+
+/* Section Heading */
+.profile-username {
+    text-align: center;
+    font-size: 2rem;
+    color: #00f0ff;
+    text-shadow: 0 0 6px #00f0ff99;
+    margin-bottom: 2rem;
+    animation: fadeIn 0.6s ease;
+}
+
+/* Post Card */
+.post-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+}
+
+.post-card h4 {
+    font-size: 1.2rem;
+    color: #00f0ff;
+    margin-bottom: 0.5rem;
+}
+
+.post-card p {
+    margin-bottom: 0.6rem;
+}
+
+.read-more {
+    color: #8e00ff;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+/* Post Footer */
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.post-footer a {
+    color: #00f0ff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.post-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Action Buttons */
+.post-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.post-actions form {
+    display: inline-block;
+}
+
+/* Buttons */
+.btn-edit, .follow-btn, .unfollow-btn {
+    padding: 0.4rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+/* Upvote */
+.btn-edit {
+    background-color: #003355;
+    color: #00d4ff;
+    border: 1px solid #00d4ff;
+}
+.btn-edit:hover {
+    background-color: #00d4ff11;
+    box-shadow: 0 0 10px #00d4ff88;
+}
+
+/* Follow */
+.follow-btn {
+    background-color: #001f2d;
+    color: #00bfff;
+    border: 1px solid #00bfff;
+}
+.follow-btn:hover {
+    background-color: #00bfff11;
+    box-shadow: 0 0 10px #00bfff99;
+}
+
+/* Unfollow */
+.unfollow-btn {
+    background-color: #002d1a;
+    color: #00ff99;
+    border: 1px solid #00ff99;
+}
+.unfollow-btn:hover {
+    background-color: #00ff9911;
+    box-shadow: 0 0 10px #00ff9988;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .post-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .post-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .post-actions form {
+        width: 100%;
+    }
+
+    .btn-edit, .follow-btn, .unfollow-btn {
+        width: 100%;
+    }
+}

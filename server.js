@@ -386,9 +386,6 @@ app.get('/WanderScript/profile', async (req, res) => {
         const profileData = {
             username: user.username,
             bio: user.bio || 'No bio yet.',
-            youtube: user.youtube_link,
-            linkedin: user.linkedin_link,
-            instagram: user.instagram_link,
             followers: Array(followerCount).fill('•'),
             totalUpvotes,
             posts
@@ -409,14 +406,14 @@ app.get('/WanderScript/posts/readmore/:id', async (req, res) => {
 
     try {
         const [[post]] = await db.promise().query(
-    `SELECT p.postID AS _id, p.title, p.description AS info, p.created_at,
+            `SELECT p.postID AS _id, p.title, p.description AS info, p.created_at,
             u.username,
             (SELECT COUNT(*) FROM post_upvotes WHERE postID = ?) AS upvotes
      FROM posts p
      JOIN users u ON p.userID = u.userID
      WHERE p.postID = ?`,
-    [postID, postID]
-);
+            [postID, postID]
+        );
 
         if (!post) {
             return res.status(404).send("Post not found.");
@@ -437,7 +434,7 @@ app.get('/WanderScript/posts/new', (req, res) => {
     if (!req.session.user || !req.session.user.email) {
         return res.redirect('/WanderScript/signin?message=Please login to post&info=warning');
     }
-    res.render('newPost', {user: req.session.user});
+    res.render('newPost', { user: req.session.user });
 });
 
 // POST New Post Submission
@@ -629,6 +626,115 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 }
 );
+
+//home feed get
+app.get('/WanderScript/homefeed', async (req, res) => {
+    try {
+        const currentUser = req.session.user;
+        if (!currentUser) {
+            return res.redirect('/WanderScript/signin?message=Login to view feed&info=warning');
+        }
+
+        const [posts] = await db.promise().query(`
+            SELECT p.postID, p.title, p.description, p.created_at,
+                   u.userID, u.username,
+                   (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes
+            FROM posts p
+            JOIN users u ON p.userID = u.userID
+            ORDER BY p.created_at DESC
+        `);
+
+        // Get followings of the current user
+        const [followingRows] = await db.promise().query(
+            `SELECT followingID FROM followers WHERE followerID = ?`,
+            [currentUser.id]
+        );
+        const followingIDs = new Set(followingRows.map(row => row.followingID));
+
+        // Attach isFollowing flag to each post
+        const postsWithFollowFlag = posts.map(post => ({
+            ...post,
+            isFollowing: followingIDs.has(post.userID)
+        }));
+
+        res.render('homeFeed', {
+            currentUser,
+            allPosts: postsWithFollowFlag
+        });
+    } catch (err) {
+        console.error("Error loading home feed:", err);
+        res.status(500).send("Server error loading feed.");
+    }
+});
+
+//follow post
+app.post('/WanderScript/follow/:id', async (req, res) => {
+    const followerID = req.session.user.id;
+    const followingID = req.params.id;
+
+    if (followerID === followingID) return res.redirect('/WanderScript/homefeed');
+
+    await db.promise().query(
+        `INSERT IGNORE INTO followers (followerID, followingID) VALUES (?, ?)`,
+        [followerID, followingID]
+    );
+    res.redirect('/WanderScript/homefeed');
+});
+
+//unfollow post
+app.post('/WanderScript/unfollow/:id', async (req, res) => {
+    const followerID = req.session.user.id;
+    const followingID = req.params.id;
+
+    await db.promise().query(
+        `DELETE FROM followers WHERE followerID = ? AND followingID = ?`,
+        [followerID, followingID]
+    );
+    res.redirect('/WanderScript/homefeed');
+});
+
+//upvote post
+app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
+    const userID = req.session.user.id;
+    const postID = req.params.id;
+
+    await db.promise().query(
+        `INSERT IGNORE INTO post_upvotes (postID, userID) VALUES (?, ?)`,
+        [postID, userID]
+    );
+    res.redirect('/WanderScript/homefeed');
+});
+
+//other user get
+app.get('/WanderScript/user/:id', async (req, res) => {
+    const userID = req.params.id;
+    const currentUser = req.session.user;
+
+    const [[user]] = await db.promise().query(`SELECT username, bio, youtube_link, linkedin_link, instagram_link FROM users WHERE userID = ?`, [userID]);
+    const [[{ followerCount }]] = await db.promise().query(`SELECT COUNT(*) AS followerCount FROM followers WHERE followingID = ?`, [userID]);
+    const [[{ totalUpvotes }]] = await db.promise().query(`SELECT COUNT(*) AS totalUpvotes FROM post_upvotes WHERE postID IN (SELECT postID FROM posts WHERE userID = ?)`, [userID]);
+    const [posts] = await db.promise().query(
+        `SELECT postID AS _id, title, description AS info, 
+                (SELECT COUNT(*) FROM post_upvotes pu WHERE pu.postID = p.postID) AS upvotes
+         FROM posts p WHERE p.userID = ?
+         ORDER BY created_at DESC`, [userID]
+    );
+    const [[isFollowing]] = await db.promise().query(
+        `SELECT 1 FROM followers WHERE followerID = ? AND followingID = ?`, [currentUser.id, userID]
+    );
+
+    const profileData = {
+        _id: userID,
+        username: user.username,
+        bio: user.bio || 'No bio yet.',
+        followers: Array(followerCount).fill('•'),
+        totalUpvotes,
+        posts,
+        isFollowing: Boolean(isFollowing)
+    };
+
+    res.render('otherUser', { user: profileData });
+});
 
 // db.query('select *from users;', (req, res) => {
 //     console.log(res);
