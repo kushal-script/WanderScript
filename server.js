@@ -630,18 +630,22 @@ app.get('/WanderScript/homefeed', async (req, res) => {
     }
 
     const userID = currentUser.userID || currentUser.id;
-    console.log("Current User ID:", userID);
 
     try {
-        const [posts] = await db.promise().query(`
-            SELECT p.postID, p.title, p.description, p.created_at,
-                   u.userID, u.username,
-                   (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes
+        const [allPosts] = await db.promise().query(`
+            SELECT 
+                p.postID, p.title, p.description,
+                p.userID, u.username,
+                (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes,
+                EXISTS (
+                    SELECT 1 FROM post_upvotes 
+                    WHERE postID = p.postID AND userID = ?
+                ) AS isUpvoted
             FROM posts p
             JOIN users u ON p.userID = u.userID
-            WHERE u.userID != ?
-            ORDER BY p.created_at DESC
-        `, [userID]);
+            WHERE p.userID != ?  
+            ORDER BY p.created_at DESC`,
+            [userID, userID]);
 
         const [followingRows] = await db.promise().query(
             `SELECT followingID FROM followers WHERE followerID = ?`,
@@ -650,14 +654,14 @@ app.get('/WanderScript/homefeed', async (req, res) => {
 
         const followingIDs = new Set(followingRows.map(row => row.followingID));
 
-        const postsWithFollowFlag = posts.map(post => ({
+        const postsWithFollowFlag = allPosts.map(post => ({
             ...post,
             isFollowing: followingIDs.has(post.userID)
         }));
 
         res.render('homeFeed', {
-            currentUser,
-            allPosts: postsWithFollowFlag
+            allPosts: postsWithFollowFlag,
+            currentUser
         });
     } catch (err) {
         console.error("Error loading home feed:", err);
@@ -683,7 +687,8 @@ app.post('/WanderScript/follow/:id', async (req, res) => {
         [followerID, followingID]
     );
 
-    res.redirect(`/WanderScript/user/${followingID}`);
+    const redirectTo = req.body.redirectTo || `/WanderScript/user/${followingID}`;
+    res.redirect(redirectTo);
 });
 
 //unfollow post
@@ -695,9 +700,12 @@ app.post('/WanderScript/unfollow/:id', async (req, res) => {
         `DELETE FROM followers WHERE followerID = ? AND followingID = ?`,
         [followerID, followingID]
     );
-    res.redirect(`/WanderScript/user/${followingID}`);
+
+    const redirectTo = req.body.redirectTo || `/WanderScript/user/${followingID}`;
+    res.redirect(redirectTo);
 });
 
+//upvote post
 app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/WanderScript/login');
@@ -706,22 +714,39 @@ app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
     const userID = req.session.user.id;
     const postID = req.params.id;
 
-    // Get the post's owner's ID to redirect to their profile
-    const [[owner]] = await db.promise().query(
-        `SELECT userID FROM posts WHERE postID = ?`,
-        [postID]
-    );
+    try {
+        // Toggle upvote
+        const [[existing]] = await db.promise().query(
+            `SELECT * FROM post_upvotes WHERE postID = ? AND userID = ?`,
+            [postID, userID]
+        );
 
-    if (!owner) {
-        return res.status(404).send('Post not found');
+        if (existing) {
+            await db.promise().query(
+                `DELETE FROM post_upvotes WHERE postID = ? AND userID = ?`,
+                [postID, userID]
+            );
+        } else {
+            await db.promise().query(
+                `INSERT INTO post_upvotes (postID, userID) VALUES (?, ?)`,
+                [postID, userID]
+            );
+        }
+
+        // Get current upvote count
+        const [[{ count }]] = await db.promise().query(
+            `SELECT COUNT(*) as count FROM post_upvotes WHERE postID = ?`,
+            [postID]
+        );
+
+        // Determine where to redirect
+        const redirectTo = req.body.redirectTo || req.get('Referrer') || '/WanderScript/homefeed';
+        res.redirect(redirectTo);
+
+    } catch (err) {
+        console.error("Upvote error:", err);
+        return res.status(500).send("Server error");
     }
-
-    await db.promise().query(
-        `INSERT IGNORE INTO post_upvotes (postID, userID) VALUES (?, ?)`,
-        [postID, userID]
-    );
-
-    res.redirect(`/WanderScript/user/${owner.userID}`);
 });
 
 //other user get
@@ -733,11 +758,20 @@ app.get('/WanderScript/user/:id', async (req, res) => {
     const [[{ followerCount }]] = await db.promise().query(`SELECT COUNT(*) AS followerCount FROM followers WHERE followingID = ?`, [userID]);
     const [[{ totalUpvotes }]] = await db.promise().query(`SELECT COUNT(*) AS totalUpvotes FROM post_upvotes WHERE postID IN (SELECT postID FROM posts WHERE userID = ?)`, [userID]);
     const [posts] = await db.promise().query(
-        `SELECT postID AS _id, title, description AS info, 
-                (SELECT COUNT(*) FROM post_upvotes pu WHERE pu.postID = p.postID) AS upvotes
-         FROM posts p WHERE p.userID = ?
-         ORDER BY created_at DESC`, [userID]
-    );
+        `SELECT 
+           p.postID AS _id,
+           p.title,
+           p.description AS info,
+           (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes,
+           EXISTS(
+             SELECT 1 FROM post_upvotes 
+             WHERE postID = p.postID AND userID = ?
+           ) AS isUpvoted
+         FROM posts p
+         WHERE p.userID = ?
+         ORDER BY p.created_at DESC`,
+        [currentUser.id, userID]
+      );
     const [[isFollowing]] = await db.promise().query(
         `SELECT 1 FROM followers WHERE followerID = ? AND followingID = ?`, [currentUser.id, userID]
     );
