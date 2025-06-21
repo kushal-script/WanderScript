@@ -46,13 +46,4 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/WanderScript/Profile', (req, res) => {
-    console.log("Rendering currentUser.ejs");
-    res.render('currentUser.ejs');
-});
-
-app.post('/', (req, res) => {
-    let infoQuery = 
-})
-
   app.listen(port, () => console.log(`Server running on http://localhost:${port}`));

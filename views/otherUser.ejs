@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WanderScript - Profile</title>
+    <link rel="stylesheet" href="/css/profile.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
+        <span class="username">@<%=user.username%></span>
+        <div class="icons">
+            <a href="<%= user.linkedin %>"><img src="/assets/linkedin_3536569.png" alt="linkedin"></a>
+            <a href="<%= user.instagram %>"><img src="/assets/instagram_1400829.png" alt="instagram"></a>
+            <a href="<%= user.youtube %>"><img src="/assets/youtube_1384028.png" alt="youtube"></a>
+        </div>
+    </nav>
+
+    <div class="profile-wrapper">
+        <div class="profile-header">
+            <h2 class="profile-username">@<%= user.username %></h2>
+        
+            <div class="bio-and-stats">
+                <div class="bio">
+                    <h3>Bio</h3>
+                    <p><%= user.bio %></p>
+                </div>
+        
+                <div class="stats">
+                    <div><strong>Posts</strong><br><%= user.posts.length %></div>
+                    <div><strong>UpVotes</strong><br><%= user.totalUpvotes %></div>
+                    <div><strong>Followers</strong><br><%= user.followers.length %></div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/WanderScript/profile/edit" class="action-btn edit-profile">✉️ Mail</a>
+        
+            <% if (!user.isFollowing) { %>
+                <form action="/follow/<%= user._id %>" method="POST">
+                    <button type="submit" class="action-btn follow-btn">➕ Follow</button>
+                </form>
+            <% } else { %>
+                <form action="/unfollow/<%= user._id %>" method="POST">
+                    <button type="submit" class="action-btn unfollow-btn">✔️ Following</button>
+                </form>
+            <% } %>
+        
+            <a href="/dashboard" class="action-btn dashboard">📝 Message</a>
+        </div>
+
+        <% user.posts.forEach(post=> { %>
+            <div class="post-card">
+                <h4>
+                    <%= post.title %>
+                </h4>
+                <p>
+                    <%= post.info.substring(0, 150) %>...
+                </p>
+                <a href="/WanderScript/posts/readmore/<%= post._id %>" class="read-more">Read more...</a>
+                <div class="post-footer">
+                    <span>Up Vote ⬆️ <%= post.upvotes %></span>
+                </div>
+            </div>
+            <% }) %>
+    </div>
+
+</body>
+
+</html>

@@ -16,3 +16,21 @@
     box-shadow: 0 0 10px #00f0ff55;
     background: linear-gradient(to right, #00f0ff55, #8e00ff55);
 }
+
+.upvote-btn {
+    background-color: #1a0033;
+    border: 1px solid #8e00ff;
+    color: #8e00ff;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upvote-btn:hover {
+    background-color: #8e00ff22;
+    transform: scale(1.03);
+    box-shadow: 0 0 10px #8e00ff99;
+}

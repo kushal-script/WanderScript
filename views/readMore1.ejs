@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title><%= post.title %> - WanderScript</title>
-    <link rel="stylesheet" href="/css/profile.css"/>
-    <link rel="stylesheet" href="/css/readMore.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+        <%= post.title %> - WanderScript
+    </title>
+    <link rel="stylesheet" href="/css/profile.css" />
+    <link rel="stylesheet" href="/css/readMore.css" />
 </head>
+
 <body>
     <nav class="navbar">
         <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
@@ -15,7 +19,9 @@
 
     <div class="profile-wrapper">
         <div class="post-card">
-            <h2 style="color:#00f0ff; font-size: 1.6rem;"><%= post.title %></h2>
+            <h2 style="color:#00f0ff; font-size: 1.6rem;">
+                <%= post.title %>
+            </h2>
             <p style="margin-top: 1rem; font-size: 1rem; line-height: 1.6;">
                 <%= post.info %>
             </p>
@@ -24,9 +30,11 @@
                 <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
                 <div class="post-actions">
                     <a href="/WanderScript/posts/readmore/edit/<%= post._id %>" class="btn-edit">✏️ Edit Post</a>
+                    <a href="/WanderScript/profile" class="action-btn edit-profile">🔙 Back to Profile</a>
                 </div>
             </div>
         </div>
     </div>
 </body>
+
 </html>
