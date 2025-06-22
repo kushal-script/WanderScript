@@ -797,6 +797,54 @@ app.get('/WanderScript/search-users', (req, res) => {
     });
 });
 
+//mail get 
+app.get('/WanderScript/user/:id/mail', async (req, res) => {
+    const toUserID = req.params.id;
+
+    if (!req.session.user || !req.session.user.email) {
+        return res.redirect('/WanderScript/signin?message=Please login first&info=warning');
+    }
+
+    const { message, messageType } = req.query; // ✅ extract from query
+
+    try {
+        const [[toUser]] = await db.promise().query(
+            `SELECT mailID, username FROM users WHERE userID = ?`,
+            [toUserID]
+        );
+
+        if (!toUser || !toUser.mailID) {
+            return res.status(404).send("Recipient not found");
+        }
+
+        const currentUser = req.session.user;
+
+        res.render('mail', {
+            toMail: toUser.mailID,
+            fromMail: currentUser.email,
+            toUserID,
+            otherUsername: toUser.username,
+            user: {
+                username: currentUser.username
+            },
+            message,        // ✅ now passed to EJS
+            messageType     // ✅ now passed to EJS
+        });
+
+    } catch (err) {
+        console.error("❌ Error loading mail form:", err);
+        res.status(500).send("Server error");
+    }
+});
+
+// POST Mail Handler
+app.post('/WanderScript/user/:id/mail', async (req, res) => {
+    const { from, to, subject, body } = req.body;
+
+    // Redirect with success message
+    res.redirect(`/WanderScript/user/${req.params.id}/mail?message=Mail sent&messageType=success`);
+});
+
 app.listen(port);
 
 // db.query('select *from users;', (req, res) => {

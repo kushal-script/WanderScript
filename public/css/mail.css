@@ -1,0 +1,91 @@
+.mail-form {
+    max-width: 700px;
+    margin: 2rem auto;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 10px #00f0ff33;
+}
+
+.navbar a img {
+    width: 28px;
+    height: 28px;
+    margin-left: 1rem;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    filter: invert(1) brightness(1.2) contrast(1.2);
+}
+
+.mail-form h2 {
+    color: #00f0ff;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 6px #00f0ff88;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #ffffffcc;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #00f0ff55;
+    background: rgba(255, 255, 255, 0.04);
+    color: #f0f0f0;
+    font-size: 0.95rem;
+}
+
+.form-group input[readonly] {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.mail-btn,
+.back-btn {
+    flex: 1 1 45%;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mail-btn {
+    background-color: #003355;
+    color: #00bfff;
+    border: 1px solid #00bfff;
+}
+
+.mail-btn:hover {
+    background-color: #00bfff11;
+    box-shadow: 0 0 10px #00bfff88;
+}
+
+.back-btn {
+    background-color: #220016;
+    color: #ff4d88;
+    border: 1px solid #ff4d88;
+}
+
+.back-btn:hover {
+    background-color: #ff4d8811;
+    box-shadow: 0 0 10px #ff4d8899;
+}
