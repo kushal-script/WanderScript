@@ -647,14 +647,14 @@ app.get('/WanderScript/homefeed', async (req, res) => {
 //follow post
 app.post('/WanderScript/follow/:id', async (req, res) => {
     if (!req.session.user) {
-        return res.redirect('/WanderScript/login');
+        return res.status(401).json({ success: false, message: 'Login required' });
     }
 
     const followerID = req.session.user.id;
     const followingID = req.params.id;
 
     if (followerID === followingID) {
-        return res.redirect('/WanderScript/homefeed');
+        return res.json({ success: false, message: 'Cannot follow yourself' });
     }
 
     await db.promise().query(
@@ -662,12 +662,15 @@ app.post('/WanderScript/follow/:id', async (req, res) => {
         [followerID, followingID]
     );
 
-    const redirectTo = req.body.redirectTo || `/WanderScript/user/${followingID}`;
-    res.redirect(redirectTo);
+    res.json({ success: true, isFollowing: true });
 });
 
 //unfollow post
 app.post('/WanderScript/unfollow/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ success: false, message: 'Login required' });
+    }
+
     const followerID = req.session.user.id;
     const followingID = req.params.id;
 
@@ -676,51 +679,48 @@ app.post('/WanderScript/unfollow/:id', async (req, res) => {
         [followerID, followingID]
     );
 
-    const redirectTo = req.body.redirectTo || `/WanderScript/user/${followingID}`;
-    res.redirect(redirectTo);
+    res.json({ success: true, isFollowing: false });
 });
 
 //upvote post
 app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
     if (!req.session.user) {
-        return res.redirect('/WanderScript/login');
+        return res.status(401).json({ success: false, message: 'Login required' });
     }
 
     const userID = req.session.user.id;
     const postID = req.params.id;
 
     try {
-        // Toggle upvote
         const [[existing]] = await db.promise().query(
             `SELECT * FROM post_upvotes WHERE postID = ? AND userID = ?`,
             [postID, userID]
         );
 
+        let isUpvoted;
         if (existing) {
             await db.promise().query(
                 `DELETE FROM post_upvotes WHERE postID = ? AND userID = ?`,
                 [postID, userID]
             );
+            isUpvoted = false;
         } else {
             await db.promise().query(
                 `INSERT INTO post_upvotes (postID, userID) VALUES (?, ?)`,
                 [postID, userID]
             );
+            isUpvoted = true;
         }
 
-        // Get current upvote count
         const [[{ count }]] = await db.promise().query(
             `SELECT COUNT(*) as count FROM post_upvotes WHERE postID = ?`,
             [postID]
         );
 
-        // Determine where to redirect
-        const redirectTo = req.body.redirectTo || req.get('Referrer') || '/WanderScript/homefeed';
-        res.redirect(redirectTo);
-
+        res.json({ success: true, isUpvoted, newUpvoteCount: count });
     } catch (err) {
         console.error("Upvote error:", err);
-        return res.status(500).send("Server error");
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
@@ -758,7 +758,10 @@ app.get('/WanderScript/user/:id', async (req, res) => {
         followers: Array(followerCount).fill('•'),
         totalUpvotes,
         posts,
-        isFollowing: Boolean(isFollowing)
+        isFollowing: Boolean(isFollowing),
+        youtube: user.youtube_link,
+        linkedin: user.linkedin_link,
+        instagram: user.instagram_link
     };
 
     res.render('otherUser', {

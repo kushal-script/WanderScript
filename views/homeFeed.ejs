@@ -15,6 +15,23 @@
             margin-top: 5px;
             font-weight: bold;
         }
+
+        .upvote-btn {
+            background-color: transparent;
+            color: #ccc;
+            border: 1px solid #00d4ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .upvote-btn.upvoted {
+            background-color: #00ff2222;
+            color: #47ff75;
+            font-weight: bold;
+            border: 1px solid #47ff75;
+        }
     </style>
 </head>
 
@@ -70,36 +87,15 @@
                             </div>
 
                             <div class="post-actions">
-                                <!-- Upvote Form -->
-                                <form action="/WanderScript/posts/upvote/<%= post.postID %>" method="POST">
-                                    <% if (post.isUpvoted) { %>
-                                        <button type="submit" class="btn-edit"
-                                            style="background-color: #00d4ff22; color: #00d4ff;">
-                                            Upvoted (<%= post.upvotes %>)
-                                        </button>
-                                        <% } else { %>
-                                            <button type="submit" class="btn-edit">
-                                                <span class="icon-text">
-                                                    <img src="/assets/file-upload_6318412.png" alt="upvote" />
-                                                    Upvote (<%= post.upvotes %>)
-                                                </span>
-                                            </button>
-                                            <% } %>
-                                </form>
+                                <button class="btn-edit upvote-btn" data-postid="<%= post.postID %>"
+                                    data-isupvoted="<%= post.isUpvoted ? 'true' : 'false' %>">
+                                    <%= post.isUpvoted ? `Upvoted (${post.upvotes})` : `➕ Upvote (${post.upvotes})` %>
+                                </button>
 
-                                <% if (post.userID !==currentUser.id) { %>
-                                    <% if (post.isFollowing) { %>
-                                        <form action="/WanderScript/unfollow/<%= post.userID %>" method="POST">
-                                            <input type="hidden" name="redirectTo" value="/WanderScript/homefeed" />
-                                            <button type="submit" class="unfollow-btn">Following</button>
-                                        </form>
-                                        <% } else { %>
-                                            <form action="/WanderScript/follow/<%= post.userID %>" method="POST">
-                                                <input type="hidden" name="redirectTo" value="/WanderScript/homefeed" />
-                                                <button type="submit" class="follow-btn">➕ Follow</button>
-                                            </form>
-                                            <% } %>
-                                                <% } %>
+                                <button class="<%= post.isFollowing ? 'unfollow-btn' : 'follow-btn' %> follow-toggle"
+                                    data-userid="<%= post.userID %>" data-following="<%= post.isFollowing %>">
+                                    <%= post.isFollowing ? 'Following' : '➕ Follow' %>
+                                </button>
                             </div>
                         </div>
             </div>
@@ -120,6 +116,62 @@
                 btn.textContent = "Read more...";
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 🔁 Upvote Button
+            document.querySelectorAll('.upvote-btn').forEach(button => {
+                // Set initial state
+                if (button.dataset.isupvoted === 'true') {
+                    button.classList.add('upvoted');
+                }
+
+                // Add click event
+                button.addEventListener('click', async () => {
+                    const postID = button.dataset.postid;
+
+                    const response = await fetch(`/WanderScript/posts/upvote/${postID}`, {
+                        method: 'POST'
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        button.textContent = data.isUpvoted
+                            ? `Upvoted (${data.newUpvoteCount})`
+                            : `➕ Upvote (${data.newUpvoteCount})`;
+
+                        button.dataset.isupvoted = data.isUpvoted;
+
+                        // 🔁 Add or remove class for styling
+                        button.classList.toggle('upvoted', data.isUpvoted);
+                    }
+                });
+            });
+
+            // ➕ Follow/Unfollow Button
+            document.querySelectorAll('.follow-toggle').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const userID = button.dataset.userid;
+                    const isFollowing = button.dataset.following === 'true';
+
+                    const endpoint = isFollowing
+                        ? `/WanderScript/unfollow/${userID}`
+                        : `/WanderScript/follow/${userID}`;
+
+                    const response = await fetch(endpoint, { method: 'POST' });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update ALL buttons for that user
+                        const allButtons = document.querySelectorAll(`.follow-toggle[data-userid="${userID}"]`);
+                        allButtons.forEach(btn => {
+                            btn.textContent = data.isFollowing ? 'Following' : '➕ Follow';
+                            btn.dataset.following = data.isFollowing;
+                            btn.className = data.isFollowing ? 'unfollow-btn follow-toggle' : 'follow-btn follow-toggle';
+                        });
+                    }
+                });
+            });
+        });
     </script>
 </body>
 
