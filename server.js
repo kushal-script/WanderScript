@@ -771,29 +771,33 @@ app.get('/WanderScript/user/:id', async (req, res) => {
 });
 
 //search box
-app.get('/WanderScript/search-users', async (req, res) => {
+app.get('/WanderScript/search-users', (req, res) => {
     const search = req.query.q || '';
+    const loggedInUserID = req.session.user?.id;
 
-    try {
-        const [results] = await db.execute(`
-            SELECT u.userID, u.username, 
-                   (SELECT COUNT(*) FROM followers WHERE followingID = u.userID) AS followersCount
-            FROM users u
-            WHERE u.username LIKE ?
-            LIMIT 10
-        `, [`%${search}%`]);
+    if (!loggedInUserID) {
+        return res.status(403).json({ success: false, message: "Unauthorized access" });
+    }
+
+    const sql = `
+        SELECT u.userID, u.username, 
+               (SELECT COUNT(*) FROM followers WHERE followingID = u.userID) AS followersCount
+        FROM users u
+        WHERE u.username LIKE ? AND u.userID != ?
+        LIMIT 10
+    `;
+
+    db.query(sql, [`%${search}%`, loggedInUserID], (err, results) => {
+        if (err) {
+            console.error("❌ SQL or DB Error:", err.message);
+            return res.status(500).json({ success: false, message: "Server error" });
+        }
 
         res.json({ success: true, users: results });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Server error" });
-    }
+    });
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-}
-);
+app.listen(port);
 
 // db.query('select *from users;', (req, res) => {
 //     console.log(res);
