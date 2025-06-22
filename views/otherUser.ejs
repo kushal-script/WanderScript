@@ -34,17 +34,18 @@
 
             <!-- Username + Follow Button -->
             <div class="profile-top">
-                <h2 class="profile-username">@<%= user.username %></h2>
+                <h2 class="profile-username">@<%= user.username %>
+                </h2>
                 <div class="follow-wrapper">
                     <% if (!user.isFollowing) { %>
                         <form action="/WanderScript/follow/<%= user._id %>" method="POST">
                             <button type="submit" class="follow-btn">➕ Follow</button>
                         </form>
-                    <% } else { %>
-                        <form action="/WanderScript/unfollow/<%= user._id %>" method="POST">
-                            <button type="submit" class="unfollow-btn">Following</button>
-                        </form>
-                    <% } %>
+                        <% } else { %>
+                            <form action="/WanderScript/unfollow/<%= user._id %>" method="POST">
+                                <button type="submit" class="unfollow-btn">Following</button>
+                            </form>
+                            <% } %>
                 </div>
             </div>
 
@@ -52,58 +53,79 @@
             <div class="bio-and-stats">
                 <div class="bio">
                     <h3>Bio</h3>
-                    <p><%= user.bio %></p>
+                    <p>
+                        <%= user.bio %>
+                    </p>
                 </div>
 
                 <div class="stats">
-                    <div><strong>Posts</strong><br><%= user.posts.length %></div>
-                    <div><strong>UpVotes</strong><br><%= user.totalUpvotes %></div>
-                    <div><strong>Followers</strong><br><%= user.followers.length %></div>
+                    <div><strong>Posts</strong><br>
+                        <%= user.posts.length %>
+                    </div>
+                    <div><strong>UpVotes</strong><br>
+                        <%= user.totalUpvotes %>
+                    </div>
+                    <div><strong>Followers</strong><br>
+                        <%= user.followers.length %>
+                    </div>
                 </div>
             </div>
 
             <!-- Mail & Message Buttons Below Bio/Stats -->
             <div class="action-buttons">
-                <a href="/WanderScript" class="action-btn edit-profile">✉️ Mail</a>
-                <a href="/WanderScript" class="action-btn dashboard">📝 Message</a>
+                <a href="/WanderScript" class="action-btn edit-profile">
+                    <span class="icon-text">
+                        <img src="/assets/icons8-mail-50.png" alt="mail"> Mail
+                    </span>
+                </a>
+                
+                <a href="/WanderScript" class="action-btn dashboard">
+                    <span class="icon-text">
+                        <img src="/assets/icons8-message-50.png" alt="message"> Message
+                    </span>
+                </a>
             </div>
         </div>
 
-        <% user.posts.forEach(post => {
+        <% user.posts.forEach(post=> {
             const shortDesc = post.info.length > 150 ? post.info.substring(0, 150) + '...' : post.info;
             const fullDesc = post.info;
-        %>
+            %>
             <div class="post-card">
-                <h4><%= post.title %></h4>
+                <h4>
+                    <%= post.title %>
+                </h4>
 
-                <p class="post-description" id="desc-<%= post._id %>"><%= shortDesc %></p>
+                <p class="post-description" id="desc-<%= post._id %>">
+                    <%= shortDesc %>
+                </p>
 
-                <% if (post.info.length > 150) { %>
-                    <button 
-                        class="read-toggle-btn" 
-                        onclick="toggleReadMore(this, '<%= post._id %>')" 
-                        data-full="<%= fullDesc.replace(/"/g, '&quot;') %>" 
-                        data-short="<%= shortDesc.replace(/"/g, '&quot;') %>">
-                        Read more...
+                <% if (post.info.length> 150) { %>
+                    <button class="read-toggle-btn" onclick="toggleReadMore(this, '<%= post._id %>')"
+                        data-full="<%= fullDesc.replace(/" /g, '&quot;' ) %>"
+                        data-short="<%= shortDesc.replace(/"/g, '&quot;' ) %>">
+                            Read more...
                     </button>
-                <% } %>
+                    <% } %>
 
-                <div class="post-footer">
-                    <form action="/WanderScript/posts/upvote/<%= post._id %>" method="POST">
-                        <input type="hidden" name="redirectTo" value="/WanderScript/user/<%= user._id %>" />
-                        <% if (post.isUpvoted) { %>
-                            <button type="submit" class="upvote-btn" style="background-color: #00d4ff22; color: #00d4ff;">
-                                ✅ Upvoted (<%= post.upvotes %>)
-                            </button>
-                        <% } else { %>
-                            <button type="submit" class="upvote-btn">
-                                ⬆️ Upvote (<%= post.upvotes %>)
-                            </button>
-                        <% } %>
-                    </form>
-                </div>
+                        <div class="post-footer">
+                            <form action="/WanderScript/posts/upvote/<%= post._id %>" method="POST">
+                                <input type="hidden" name="redirectTo" value="/WanderScript/user/<%= user._id %>" />
+                                <% if (post.isUpvoted) { %>
+                                    <button type="submit" class="upvote-btn"
+                                        style="background-color: #00d4ff22; color: #00d4ff;">
+                                        Upvoted (<%= post.upvotes %>)
+                                    </button>
+                                    <% } else { %>
+                                        <button type="submit" class="upvote-btn">
+                                            <img src="/assets/file-upload_6318412.png" alt="upvote" class="icon-sm">
+                                            Upvote (<%= post.upvotes %>)
+                                        </button>
+                                        <% } %>
+                            </form>
+                        </div>
             </div>
-        <% }) %>
+            <% }) %>
     </div>
 
     <script>

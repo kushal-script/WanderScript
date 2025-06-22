@@ -28,69 +28,86 @@
         <div class="profile-header">
             <div class="bio">
                 <h3>Bio</h3>
-                <p><%= user.bio %></p>
+                <p>
+                    <%= user.bio %>
+                </p>
             </div>
 
             <div class="stats">
-                <div><strong>Posts</strong><br><%= user.posts.length %></div>
-                <div><strong>UpVotes</strong><br><%= user.totalUpvotes %></div>
-                <div><strong>Followers</strong><br><%= user.followers.length %></div>
+                <div><strong>Posts</strong><br>
+                    <%= user.posts.length %>
+                </div>
+                <div><strong>UpVotes</strong><br>
+                    <%= user.totalUpvotes %>
+                </div>
+                <div><strong>Followers</strong><br>
+                    <%= user.followers.length %>
+                </div>
             </div>
 
             <div class="new-post-card">
                 <a href="/WanderScript/posts/new">
-                    <div class="post-icon">➕</div>
+                    <div class="post-icon"><img src="/assets/icons8-new-post-24.png" alt="newPost"></div>
                     <div class="post-text">Post</div>
                 </a>
             </div>
         </div>
 
         <div class="action-buttons">
-            <a href="/WanderScript/profile/edit" class="action-btn edit-profile">✏️ Edit Profile</a>
-            <a href="/dashboard" class="action-btn dashboard">📊 Dashboard</a>
+            <a href="/WanderScript/profile/edit" class="action-btn edit-profile"><img
+                    src="/assets/edit-info_9977203.png" alt="edit"> Edit Profile</a>
+            <a href="/dashboard" class="action-btn dashboard"><img src="/assets/icons8-dashboard-64-2.png"
+                    alt="dashboard"> Dashboard</a>
         </div>
 
-        <% user.posts.forEach(post => { 
+        <% user.posts.forEach(post=> {
             const shortDesc = post.info.length > 150 ? post.info.substring(0, 150) + '...' : post.info;
             const fullDesc = post.info;
-        %>
+            %>
             <div class="post-card">
-                <h4><%= post.title %></h4>
+                <h4>
+                    <%= post.title %>
+                </h4>
 
-                <p class="post-description" id="desc-<%= post._id %>"><%= shortDesc %></p>
+                <p class="post-description" id="desc-<%= post._id %>">
+                    <%= shortDesc %>
+                </p>
 
-                <% if (post.info.length > 150) { %>
-                    <button 
-                        class="read-toggle-btn" 
-                        onclick="toggleReadMore(this, '<%= post._id %>')" 
-                        data-full="<%= fullDesc.replace(/"/g, '&quot;') %>" 
-                        data-short="<%= shortDesc.replace(/"/g, '&quot;') %>">
-                        Read more...
+                <% if (post.info.length> 150) { %>
+                    <button class="read-toggle-btn" onclick="toggleReadMore(this, '<%= post._id %>')"
+                        data-full="<%= fullDesc.replace(/" /g, '&quot;' ) %>"
+                        data-short="<%= shortDesc.replace(/"/g, '&quot;' ) %>">
+                            Read more...
                     </button>
-                <% } %>
+                    <% } %>
 
-                <div class="post-footer">
-                    <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
-                    <div class="post-actions">
+                        <div class="post-footer">
+                            <span class="upvote-badge">
+                                <img src="/assets/file-upload_6318412.png" alt="⬆" class="upvote-icon" />
+                                <span class="upvote-text">Up Votes</span>
+                                (<%= post.upvotes %>)
+                            </span>
+                            <div class="post-actions">
 
-                        <!-- 🗑️ Delete -->
-                        <form id="delete-form-<%= post._id %>" action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display: inline;">
-                            <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">
-                                <img src="/assets/icons8-delete-24.png" alt=""> Delete Post
-                            </button>
-                        </form>
+                                <form id="delete-form-<%= post._id %>"
+                                    action="/WanderScript/posts/delete/<%= post._id %>" method="POST"
+                                    style="display: inline;">
+                                    <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">
+                                        <img src="/assets/icons8-delete-24.png" alt=""> Delete Post
+                                    </button>
+                                </form>
 
-                        <!-- ✏️ Edit -->
-                        <form action="/WanderScript/posts/edit/<%= post._id %>" method="GET" style="display: inline;">
-                            <button type="submit" class="btn-edit">
-                                <img src="/assets/icons8-edit-64.png" alt=""> Edit Post
-                            </button>
-                        </form>
+                                <form action="/WanderScript/posts/edit/<%= post._id %>" method="GET"
+                                    style="display: inline;">
+                                    <button type="submit" class="btn-edit">
+                                        <img src="/assets/icons8-edit-64.png" alt=""> Edit Post
+                                    </button>
+                                </form>
 
-                    </div>
-                </div>
+                            </div>
+                        </div>
             </div>
-        <% }) %>
+            <% }) %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

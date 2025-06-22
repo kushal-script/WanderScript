@@ -14,7 +14,7 @@
   
   <div class="profile-wrapper">
     <div class="post-card">
-      <h2 style="color:#00f0ff; font-size: 1.5rem;">✏️ Edit Your Post</h2>
+      <h2 style="color:#00f0ff; font-size: 1.5rem;"> Edit Your Post</h2>
 
       <% if (typeof message !== 'undefined' && message) { %>
         <p style="color: rgb(25, 212, 0); margin: 1rem 0;"><%= message %></p>
@@ -39,8 +39,15 @@
         ><%= post.info %></textarea>
 
         <div class="action-buttons">
-          <button type="submit" class="action-btn dashboard">✏️ Edit</button>
-          <a href="/WanderScript/profile" class="action-btn edit-profile">🔙 Back to Profile</a>
+          <button type="submit" class="action-btn dashboard">
+            <img src="/assets/icons8-edit-button-50.png" alt="edit" class="icon" />
+            <span>Edit</span>
+          </button>
+        
+          <a href="/WanderScript/profile" class="action-btn edit-profile">
+            <img src="/assets/icons8-back-64.png" alt="back" class="icon" />
+            <span>Back to Profile</span>
+          </a>
         </div>
       </form>
     </div>

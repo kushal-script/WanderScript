@@ -26,72 +26,78 @@
         </nav>
 
         <div class="search-card" onclick="expandSearch()">
-            <input type="text" class="search-input" id="searchInput" placeholder="🔍   Search users ..." onblur="collapseSearch()" />
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍   Search users ..."
+                onblur="collapseSearch()" />
         </div>
     </div>
 
     <div class="profile-wrapper">
         <h2 class="profile-username">🌐 Global Feed</h2>
 
-        <% allPosts.forEach(post => { 
-            const shortDesc = post.description.length > 150 ? post.description.substring(0, 150) + '...' : post.description;
+        <% allPosts.forEach(post=> {
+            const shortDesc = post.description.length > 150 ? post.description.substring(0, 150) + '...' :
+            post.description;
             const fullDesc = post.description;
-        %>
+            %>
             <div class="post-card">
-                <h4><%= post.title %></h4>
+                <h4>
+                    <%= post.title %>
+                </h4>
 
-                <p class="post-description" id="desc-<%= post.postID %>"><%= shortDesc %></p>
+                <p class="post-description" id="desc-<%= post.postID %>">
+                    <%= shortDesc %>
+                </p>
 
-                <% if (post.description.length > 150) { %>
-                    <button 
-                        class="read-toggle-btn"
-                        onclick="toggleReadMore(this, '<%= post.postID %>')"
-                        data-full="<%= fullDesc.replace(/"/g, '&quot;') %>"
-                        data-short="<%= shortDesc.replace(/"/g, '&quot;') %>">
-                        Read more...
+                <% if (post.description.length> 150) { %>
+                    <button class="read-toggle-btn" onclick="toggleReadMore(this, '<%= post.postID %>')"
+                        data-full="<%= fullDesc.replace(/" /g, '&quot;' ) %>"
+                        data-short="<%= shortDesc.replace(/"/g, '&quot;' ) %>">
+                            Read more...
                     </button>
-                <% } %>
+                    <% } %>
 
-                <div class="post-footer">
-                    <div>
-                        ✍️ Posted by
-                        <a href="/WanderScript/user/<%= post.userID %>" style="color:#00f0ff; text-decoration:none;">
-                            @<%= post.username %>
-                        </a>
-                    </div>
+                        <div class="post-footer">
+                            <div class="user-posted">
+                                <img src="/assets/user_456212.png" alt="user">
+                                <span>Posted by</span>
+                                <a href="/WanderScript/user/<%= post.userID %>">@<%= post.username %></a>
+                            </div>
 
-                    <div class="post-actions">
-                        <!-- Upvote Form -->
-                        <form action="/WanderScript/posts/upvote/<%= post.postID %>" method="POST">
-                            <% if (post.isUpvoted) { %>
-                                <button type="submit" class="btn-edit" style="background-color: #00d4ff22; color: #00d4ff;">
-                                    ✅ Upvoted (<%= post.upvotes %>)
-                                </button>
-                            <% } else { %>
-                                <button type="submit" class="btn-edit">
-                                    ⬆️ Upvote (<%= post.upvotes %>)
-                                </button>
-                            <% } %>
-                        </form>
-
-                        <!-- Follow/Unfollow Form -->
-                        <% if (post.userID !== currentUser.id) { %>
-                            <% if (post.isFollowing) { %>
-                                <form action="/WanderScript/unfollow/<%= post.userID %>" method="POST">
-                                    <input type="hidden" name="redirectTo" value="/WanderScript/homefeed" />
-                                    <button type="submit" class="unfollow-btn">Following</button>
+                            <div class="post-actions">
+                                <!-- Upvote Form -->
+                                <form action="/WanderScript/posts/upvote/<%= post.postID %>" method="POST">
+                                    <% if (post.isUpvoted) { %>
+                                        <button type="submit" class="btn-edit"
+                                            style="background-color: #00d4ff22; color: #00d4ff;">
+                                            Upvoted (<%= post.upvotes %>)
+                                        </button>
+                                        <% } else { %>
+                                            <button type="submit" class="btn-edit">
+                                                <span class="icon-text">
+                                                    <img src="/assets/file-upload_6318412.png" alt="upvote" />
+                                                    Upvote (<%= post.upvotes %>)
+                                                </span>
+                                            </button>
+                                            <% } %>
                                 </form>
-                            <% } else { %>
-                                <form action="/WanderScript/follow/<%= post.userID %>" method="POST">
-                                    <input type="hidden" name="redirectTo" value="/WanderScript/homefeed" />
-                                    <button type="submit" class="follow-btn">➕ Follow</button>
-                                </form>
-                            <% } %>
-                        <% } %>
-                    </div>
-                </div>
+
+                                <% if (post.userID !==currentUser.id) { %>
+                                    <% if (post.isFollowing) { %>
+                                        <form action="/WanderScript/unfollow/<%= post.userID %>" method="POST">
+                                            <input type="hidden" name="redirectTo" value="/WanderScript/homefeed" />
+                                            <button type="submit" class="unfollow-btn">Following</button>
+                                        </form>
+                                        <% } else { %>
+                                            <form action="/WanderScript/follow/<%= post.userID %>" method="POST">
+                                                <input type="hidden" name="redirectTo" value="/WanderScript/homefeed" />
+                                                <button type="submit" class="follow-btn">➕ Follow</button>
+                                            </form>
+                                            <% } %>
+                                                <% } %>
+                            </div>
+                        </div>
             </div>
-        <% }) %>
+            <% }) %>
     </div>
 
     <script>

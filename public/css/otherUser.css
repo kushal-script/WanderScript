@@ -153,6 +153,32 @@ a{
     gap: 1rem;
 }
 
+.icon-sm {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    vertical-align: middle;
+    filter: brightness(0) invert(1);
+}
+
+.action-btn img,
+.upvote-btn img {
+    display: inline-block;
+}
+
+.icon-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+}
+
+.icon-text img {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1); 
+}
+
 .upvote-btn {
     background-color: #003355;
     color: #00d4ff;
