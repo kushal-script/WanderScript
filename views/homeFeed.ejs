@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WanderScript - Home Feed</title>
     <link rel="stylesheet" href="/css/homeFeed.css" />
+    <style>
+        .read-toggle-btn {
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
     <div class="navbar-wrapper">
         <nav class="navbar">
             <span class="app-logo">WanderScript</span>
             <a href="/WanderScript/profile" class="username">@<%= currentUser.username %></a>
         </nav>
-    
+
         <div class="search-card" onclick="expandSearch()">
             <input type="text" class="search-input" id="searchInput" placeholder="🔍   Search users ..." onblur="collapseSearch()" />
         </div>
@@ -21,14 +33,28 @@
     <div class="profile-wrapper">
         <h2 class="profile-username">🌐 Global Feed</h2>
 
-        <% allPosts.forEach(post => { %>
+        <% allPosts.forEach(post => { 
+            const shortDesc = post.description.length > 150 ? post.description.substring(0, 150) + '...' : post.description;
+            const fullDesc = post.description;
+        %>
             <div class="post-card">
                 <h4><%= post.title %></h4>
-                <p><%= post.description.substring(0, 150) %>...</p>
+
+                <p class="post-description" id="desc-<%= post.postID %>"><%= shortDesc %></p>
+
+                <% if (post.description.length > 150) { %>
+                    <button 
+                        class="read-toggle-btn"
+                        onclick="toggleReadMore(this, '<%= post.postID %>')"
+                        data-full="<%= fullDesc.replace(/"/g, '&quot;') %>"
+                        data-short="<%= shortDesc.replace(/"/g, '&quot;') %>">
+                        Read more...
+                    </button>
+                <% } %>
 
                 <div class="post-footer">
                     <div>
-                        ✍️ Posted by 
+                        ✍️ Posted by
                         <a href="/WanderScript/user/<%= post.userID %>" style="color:#00f0ff; text-decoration:none;">
                             @<%= post.username %>
                         </a>
@@ -47,6 +73,7 @@
                                 </button>
                             <% } %>
                         </form>
+
                         <!-- Follow/Unfollow Form -->
                         <% if (post.userID !== currentUser.id) { %>
                             <% if (post.isFollowing) { %>
@@ -63,10 +90,25 @@
                         <% } %>
                     </div>
                 </div>
-
-                <a href="/WanderScript/posts/readmore/<%= post.postID %>" class="read-more">Read more...</a>
             </div>
         <% }) %>
     </div>
+
+    <script>
+        function toggleReadMore(btn, postID) {
+            const desc = document.getElementById(`desc-${postID}`);
+            const fullText = btn.getAttribute("data-full");
+            const shortText = btn.getAttribute("data-short");
+
+            if (btn.textContent.includes("Read more")) {
+                desc.textContent = fullText;
+                btn.textContent = "Read less";
+            } else {
+                desc.textContent = shortText;
+                btn.textContent = "Read more...";
+            }
+        }
+    </script>
 </body>
+
 </html>

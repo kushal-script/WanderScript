@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WanderScript - Profile</title>
     <link rel="stylesheet" href="/css/otherUser.css" />
+    <style>
+        .read-toggle-btn {
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,18 +34,17 @@
 
             <!-- Username + Follow Button -->
             <div class="profile-top">
-                <h2 class="profile-username">@<%= user.username %>
-                </h2>
+                <h2 class="profile-username">@<%= user.username %></h2>
                 <div class="follow-wrapper">
                     <% if (!user.isFollowing) { %>
                         <form action="/WanderScript/follow/<%= user._id %>" method="POST">
                             <button type="submit" class="follow-btn">➕ Follow</button>
                         </form>
-                        <% } else { %>
-                            <form action="/WanderScript/unfollow/<%= user._id %>" method="POST">
-                                <button type="submit" class="unfollow-btn">Following</button>
-                            </form>
-                            <% } %>
+                    <% } else { %>
+                        <form action="/WanderScript/unfollow/<%= user._id %>" method="POST">
+                            <button type="submit" class="unfollow-btn">Following</button>
+                        </form>
+                    <% } %>
                 </div>
             </div>
 
@@ -43,21 +52,13 @@
             <div class="bio-and-stats">
                 <div class="bio">
                     <h3>Bio</h3>
-                    <p>
-                        <%= user.bio %>
-                    </p>
+                    <p><%= user.bio %></p>
                 </div>
 
                 <div class="stats">
-                    <div><strong>Posts</strong><br>
-                        <%= user.posts.length %>
-                    </div>
-                    <div><strong>UpVotes</strong><br>
-                        <%= user.totalUpvotes %>
-                    </div>
-                    <div><strong>Followers</strong><br>
-                        <%= user.followers.length %>
-                    </div>
+                    <div><strong>Posts</strong><br><%= user.posts.length %></div>
+                    <div><strong>UpVotes</strong><br><%= user.totalUpvotes %></div>
+                    <div><strong>Followers</strong><br><%= user.followers.length %></div>
                 </div>
             </div>
 
@@ -66,38 +67,60 @@
                 <a href="/WanderScript" class="action-btn edit-profile">✉️ Mail</a>
                 <a href="/WanderScript" class="action-btn dashboard">📝 Message</a>
             </div>
-
         </div>
 
-        <% user.posts.forEach(post=> { %>
+        <% user.posts.forEach(post => {
+            const shortDesc = post.info.length > 150 ? post.info.substring(0, 150) + '...' : post.info;
+            const fullDesc = post.info;
+        %>
             <div class="post-card">
-                <h4>
-                    <%= post.title %>
-                </h4>
-                <p>
-                    <%= post.info.substring(0, 150) %>...
-                </p>
-                <a href="/WanderScript/posts/readmore/<%= post._id %>" class="read-more">Read more...</a>
+                <h4><%= post.title %></h4>
+
+                <p class="post-description" id="desc-<%= post._id %>"><%= shortDesc %></p>
+
+                <% if (post.info.length > 150) { %>
+                    <button 
+                        class="read-toggle-btn" 
+                        onclick="toggleReadMore(this, '<%= post._id %>')" 
+                        data-full="<%= fullDesc.replace(/"/g, '&quot;') %>" 
+                        data-short="<%= shortDesc.replace(/"/g, '&quot;') %>">
+                        Read more...
+                    </button>
+                <% } %>
+
                 <div class="post-footer">
-                    <div class="post-footer">
-                        <form action="/WanderScript/posts/upvote/<%= post._id %>" method="POST">
-                            <input type="hidden" name="redirectTo" value="/WanderScript/user/<%= user._id %>" />
-                            <% if (post.isUpvoted) { %>
-                                <button type="submit" class="upvote-btn" style="background-color: #00d4ff22; color: #00d4ff;">
-                                    ✅ Upvoted (<%= post.upvotes %>)
-                                </button>
-                            <% } else { %>
-                                <button type="submit" class="upvote-btn">
-                                    ⬆️ Upvote (<%= post.upvotes %>)
-                                </button>
-                            <% } %>
-                          </form>
-                    </div>
+                    <form action="/WanderScript/posts/upvote/<%= post._id %>" method="POST">
+                        <input type="hidden" name="redirectTo" value="/WanderScript/user/<%= user._id %>" />
+                        <% if (post.isUpvoted) { %>
+                            <button type="submit" class="upvote-btn" style="background-color: #00d4ff22; color: #00d4ff;">
+                                ✅ Upvoted (<%= post.upvotes %>)
+                            </button>
+                        <% } else { %>
+                            <button type="submit" class="upvote-btn">
+                                ⬆️ Upvote (<%= post.upvotes %>)
+                            </button>
+                        <% } %>
+                    </form>
                 </div>
             </div>
-            <% }) %>
+        <% }) %>
     </div>
 
+    <script>
+        function toggleReadMore(btn, postID) {
+            const desc = document.getElementById(`desc-${postID}`);
+            const fullText = btn.getAttribute("data-full");
+            const shortText = btn.getAttribute("data-short");
+
+            if (btn.textContent.includes("Read more")) {
+                desc.textContent = fullText;
+                btn.textContent = "Read less";
+            } else {
+                desc.textContent = shortText;
+                btn.textContent = "Read more...";
+            }
+        }
+    </script>
 </body>
 
 </html>

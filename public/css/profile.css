@@ -299,8 +299,23 @@ body {
 }
 
 .btn-edit {
+    align-items: center;
+    padding: 0.5rem 1rem;
+    gap: 6px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
     background-color: #007bff;
     color: #fff;
+    border: none;
+}
+
+.btn-edit img {
+    height: 18px;
+    width: 18px;
 }
 
 .btn-edit:hover {

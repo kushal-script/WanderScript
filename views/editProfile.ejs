@@ -9,7 +9,6 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
     <a href="/WanderScript/profile" class="username">@<%= user.username %></a>
   </nav>
 
@@ -18,7 +17,7 @@
       <h2 style="color:#00f0ff; font-size: 1.5rem;">✏️ Edit Profile</h2>
 
       <% if (typeof message !== 'undefined' && message) { %>
-        <p style="color: crimson; margin: 1rem 0;"><%= message %></p>
+        <p style="color: rgb(0, 243, 77); margin: 1rem 0;"><%= message %></p>
       <% } %>
 
       <form action="/WanderScript/profile/edit?_method=PUT" method="POST" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">

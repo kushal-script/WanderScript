@@ -6,33 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WanderScript - Profile</title>
     <link rel="stylesheet" href="/css/profile.css" />
+    <style>
+        .read-toggle-btn {
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
     <nav class="navbar">
         <a href="/WanderScript/homefeed"><img src="/assets/icons8-home-50.png" alt="home"></a>
-        <span class="username">@<%=user.username%></span>
+        <span class="username">@<%= user.username %></span>
     </nav>
 
     <div class="profile-wrapper">
         <div class="profile-header">
             <div class="bio">
                 <h3>Bio</h3>
-                <p>
-                    <%= user.bio %>
-                </p>
+                <p><%= user.bio %></p>
             </div>
 
             <div class="stats">
-                <div><strong>Posts</strong> <br>
-                    <%= user.posts.length %>
-                </div>
-                <div><strong>UpVotes</strong> <br>
-                    <%= user.totalUpvotes %>
-                </div>
-                <div><strong>Followers</strong> <br>
-                    <%= user.followers.length %>
-                </div>
+                <div><strong>Posts</strong><br><%= user.posts.length %></div>
+                <div><strong>UpVotes</strong><br><%= user.totalUpvotes %></div>
+                <div><strong>Followers</strong><br><%= user.followers.length %></div>
             </div>
 
             <div class="new-post-card">
@@ -48,48 +50,83 @@
             <a href="/dashboard" class="action-btn dashboard">📊 Dashboard</a>
         </div>
 
-        <% user.posts.forEach(post=> { %>
+        <% user.posts.forEach(post => { 
+            const shortDesc = post.info.length > 150 ? post.info.substring(0, 150) + '...' : post.info;
+            const fullDesc = post.info;
+        %>
             <div class="post-card">
-                <h4>
-                    <%= post.title %>
-                </h4>
-                <p>
-                    <%= post.info.substring(0, 150) %>...
-                </p>
-                <a href="/WanderScript/posts/readmore/<%= post._id %>" class="read-more">Read more...</a>
+                <h4><%= post.title %></h4>
+
+                <p class="post-description" id="desc-<%= post._id %>"><%= shortDesc %></p>
+
+                <% if (post.info.length > 150) { %>
+                    <button 
+                        class="read-toggle-btn" 
+                        onclick="toggleReadMore(this, '<%= post._id %>')" 
+                        data-full="<%= fullDesc.replace(/"/g, '&quot;') %>" 
+                        data-short="<%= shortDesc.replace(/"/g, '&quot;') %>">
+                        Read more...
+                    </button>
+                <% } %>
+
                 <div class="post-footer">
                     <span>Blog Up Votes ⬆️ <%= post.upvotes %></span>
                     <div class="post-actions">
+
+                        <!-- 🗑️ Delete -->
                         <form id="delete-form-<%= post._id %>" action="/WanderScript/posts/delete/<%= post._id %>" method="POST" style="display: inline;">
-                            <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')"><img src="/assets/icons8-delete-24.png" alt=""> Delete Post</button>
+                            <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">
+                                <img src="/assets/icons8-delete-24.png" alt=""> Delete Post
+                            </button>
                         </form>
+
+                        <!-- ✏️ Edit -->
+                        <form action="/WanderScript/posts/edit/<%= post._id %>" method="GET" style="display: inline;">
+                            <button type="submit" class="btn-edit">
+                                <img src="/assets/icons8-edit-64.png" alt=""> Edit Post
+                            </button>
+                        </form>
+
                     </div>
                 </div>
             </div>
-            <% }) %>
+        <% }) %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function confirmDelete(postId) {
-          Swal.fire({
-            title: 'Are you sure?',
-            text: "This action will permanently delete your post.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-          }).then((result) => {
-            if (result.isConfirmed) {
-              document.getElementById(`delete-form-${postId}`).submit();
-            }
-          });
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will permanently delete your post.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`delete-form-${postId}`).submit();
+                }
+            });
         }
-      </script>
 
+        function toggleReadMore(btn, postID) {
+            const desc = document.getElementById(`desc-${postID}`);
+            const fullText = btn.getAttribute("data-full");
+            const shortText = btn.getAttribute("data-short");
+
+            if (btn.textContent.includes("Read more")) {
+                desc.textContent = fullText;
+                btn.textContent = "Read less";
+            } else {
+                desc.textContent = shortText;
+                btn.textContent = "Read more...";
+            }
+        }
+    </script>
 </body>
 
 </html>
