@@ -32,6 +32,15 @@
             font-weight: bold;
             border: 1px solid #47ff75;
         }
+
+        .search-popup {
+            z-index: 100%;
+        }
+
+        .search-card {
+            overflow: visible;
+            z-index: 100;
+        }
     </style>
 </head>
 
@@ -42,9 +51,12 @@
             <a href="/WanderScript/profile" class="username">@<%= currentUser.username %></a>
         </nav>
 
-        <div class="search-card" onclick="expandSearch()">
+        <div class="search-card">
             <input type="text" class="search-input" id="searchInput" placeholder="🔍   Search users ..."
-                onblur="collapseSearch()" />
+                autocomplete="off" />
+            <div id="searchPopup" class="search-popup hidden">
+                <ul id="searchResults" class="search-results"></ul>
+            </div>
         </div>
     </div>
 
@@ -172,6 +184,54 @@
                 });
             });
         });
+
+        // 🔍 Live Search Popup Logic
+        const searchInput = document.getElementById('searchInput');
+        const searchPopup = document.getElementById('searchPopup');
+        const searchResults = document.getElementById('searchResults');
+
+        let debounceTimer;
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const query = searchInput.value.trim();
+
+            if (query.length === 0) {
+                searchPopup.classList.add('hidden');
+                document.body.classList.remove('blur-active');
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/WanderScript/search-users?q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+
+                    if (data.success && data.users.length > 0) {
+                        searchResults.innerHTML = data.users.map(user => `
+                    <li onclick="window.location.href='/WanderScript/user/${user.userID}'">
+                        <span>@${user.username}</span>
+                        <span class="follower-count">👥 ${user.followersCount}</span>
+                    </li>
+                `).join('');
+                    } else {
+                        searchResults.innerHTML = `<li>No users found</li>`;
+                    }
+
+                    searchPopup.classList.remove('hidden');
+                } catch (err) {
+                    console.error(err);
+                }
+            }, 250); // debounce
+        });
+
+        searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                searchPopup.classList.add('hidden');
+                document.body.classList.remove('blur-active');
+            }, 200); // Allow time for click
+        });
+
     </script>
 </body>
 

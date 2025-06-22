@@ -387,6 +387,65 @@ a{
     }
 }
 
+/* Search Popup Overlay */
+.search-popup {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: #111;
+    border: 1px solid #00f0ff33;
+    border-radius: 10px;
+    z-index: 999;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 0 12px #00f0ff55;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.search-card {
+    position: relative;
+}
+
+.search-popup.hidden {
+    display: none;
+}
+
+.search-results {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.search-results li {
+    padding: 0.6rem;
+    border-bottom: 1px solid #00f0ff22;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-results li:hover {
+    background: #00f0ff22;
+}
+
+.follower-count {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* Blur Background */
+/* .blur-active .profile-wrapper,
+.blur-active .feed-header,
+.blur-active .post-card {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+} */
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .navbar {

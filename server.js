@@ -770,6 +770,26 @@ app.get('/WanderScript/user/:id', async (req, res) => {
     });
 });
 
+//search box
+app.get('/WanderScript/search-users', async (req, res) => {
+    const search = req.query.q || '';
+
+    try {
+        const [results] = await db.execute(`
+            SELECT u.userID, u.username, 
+                   (SELECT COUNT(*) FROM followers WHERE followingID = u.userID) AS followersCount
+            FROM users u
+            WHERE u.username LIKE ?
+            LIMIT 10
+        `, [`%${search}%`]);
+
+        res.json({ success: true, users: results });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 }
