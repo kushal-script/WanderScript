@@ -11,6 +11,16 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.action-btn img {
+    width: 20px;
+    height: 20px;
+    filter: invert(1);
+  }
+
+  .dashboard img {
+    filter: invert(1) brightness(200%) contrast(150%);
+  }
+
 .username:hover {
     transform: scale(1.05);
     box-shadow: 0 0 10px #00f0ff55;

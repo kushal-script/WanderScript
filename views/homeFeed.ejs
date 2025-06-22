@@ -32,7 +32,13 @@
     </div>
 
     <div class="profile-wrapper">
-        <h2 class="profile-username">🌐 Global Feed</h2>
+        <div class="feed-header">
+            <h2 class="profile-username">🌐 Global Feed</h2>
+            <a href="/WanderScript/messages" class="message-btn">
+                <img src="/assets/icons8-message-50.png" alt="message" />
+                <span>Message</span>
+            </a>
+        </div>
 
         <% allPosts.forEach(post=> {
             const shortDesc = post.description.length > 150 ? post.description.substring(0, 150) + '...' :

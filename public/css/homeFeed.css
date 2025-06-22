@@ -43,6 +43,50 @@ a{
     gap: 6px; /* spacing between icon and text */
 }
 
+/* Header: Global Feed + Message Button */
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Align heading to the left */
+.feed-header .profile-username {
+    text-align: left;
+    margin: 0;
+}
+
+/* Message Button */
+.message-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.5rem 1rem;
+    background-color: #ffffff10;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid #ffffffaa;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 4px #ffffff88;
+}
+
+.message-btn img {
+    width: 18px;
+    height: 18px;
+    filter: grayscale(1) brightness(10);
+}
+
+.message-btn:hover {
+    background-color: #ffffff22;
+    box-shadow: 0 0 12px #ffffff99;
+    transform: scale(1.03);
+}
+
 .icon-text img {
     width: 16px;
     height: 16px;

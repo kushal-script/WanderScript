@@ -256,15 +256,21 @@ a{
 }
 
 .dashboard {
-    background-color: #222;
-    border: 1px solid #00f0ff;
-    color: #00f0ff;
+    background-color: #ffffff10;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid #ffffffaa;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 4px #ffffff88;
 }
 
 .dashboard:hover {
-    background-color: #00f0ff11;
+    background-color: #ffffff22;
+    box-shadow: 0 0 12px #ffffff99;
     transform: scale(1.03);
-    box-shadow: 0 0 12px #00f0ff88;
 }
 
 .post-card {

@@ -9,13 +9,12 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="/"><img src="/assets/icons8-home-50.png" alt="home"></a>
     <a href="/WanderScript/profile" class="username">@<%=user.username%></a>
   </nav>
 
   <div class="profile-wrapper">
     <div class="post-card">
-      <h2 style="color:#00f0ff; font-size: 1.5rem;">📝 Create a New Post</h2>
+      <h2 style="color:#00f0ff; font-size: 1.5rem;"> Create a New Post</h2>
 
       <% if (typeof message !== 'undefined') { %>
         <p style="color: crimson; margin: 1rem 0;"><%= message %></p>
@@ -39,8 +38,8 @@
         ></textarea>
 
         <div class="action-buttons">
-          <button type="submit" class="action-btn dashboard">🚀 Post</button>
-          <a href="/WanderScript/profile" class="action-btn edit-profile">🔙 Back to Profile</a>
+          <button type="submit" class="action-btn dashboard"><img src="/assets/icons8-new-post-24.png" alt="post"> Post</button>
+          <a href="/WanderScript/profile" class="action-btn edit-profile"><img src="/assets/icons8-back-64.png" alt="back"> Back to Profile</a>
         </div>
       </form>
     </div>
