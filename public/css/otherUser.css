@@ -34,7 +34,6 @@ a{
 }
 
 .username:hover {
-    transform: scale(1.05);
     box-shadow: 0 0 10px #00f0ff55;
     background: linear-gradient(to right, #00f0ff55, #8e00ff55);
 }

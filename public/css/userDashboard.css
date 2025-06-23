@@ -55,7 +55,8 @@ a {
 }
 
 .username:hover {
-    text-shadow: 0 0 8px #00f0ff, 0 0 10px #8e00ff;
+    box-shadow: 0 0 10px #00f0ff55;
+    background: linear-gradient(to right, #00f0ff55, #8e00ff55);
 }
 
 .dashboard-header {
@@ -74,7 +75,19 @@ a {
     display: flex;
     gap: 1rem;
 }
+
+.action-buttons button img {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1);
+    margin-right: 8px;
+}
+
 .action-buttons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     background: linear-gradient(to right, #0a0a0a, #1a1a1a);
     border: 1px solid #00f0ff;
     color: #00f0ff;
@@ -83,6 +96,7 @@ a {
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: bold;
+    font-size: 1rem;
 }
 .action-buttons button:hover {
     background: #00f0ff33;

@@ -1,46 +1,113 @@
 <!-- userDashboard.ejs -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <title>WanderScript - Dashboard</title>
     <link rel="stylesheet" href="/css/userDashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1rem 1.5rem;
+            margin: 0 auto 2rem auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 0 14px rgba(0, 255, 255, 0.05);
+        }
+
+        .nav-icon img {
+            width: 28px;
+            height: 28px;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            filter: invert(1) brightness(1.2) contrast(1.2);
+        }
+
+        .nav-icon img:hover {
+            transform: scale(1.15);
+            filter: invert(1) brightness(1.7) contrast(1.4) drop-shadow(0 0 6px #00f0ff);
+        }
+
+        .username {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            color: #ffffff;
+            text-shadow: 0 0 4px #00f0ff88;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            margin-left: 1rem;
+            background: linear-gradient(to right, #00f0ff22, #8e00ff22);
+            transition: 0.3s;
+        }
+
+        .username:hover {
+            text-shadow: 0 0 8px #00f0ffcc;
+            box-shadow: 0 0 8px #00f0ff44;
+            cursor: pointer;
+        }
+
+        .action-buttons button .delete{
+            filter: none;
+            height: 24px;
+            width: 24px;
+        }
+    </style>
 </head>
+
 <body>
     <nav class="navbar">
-        <a href="/WanderScript/homefeed"><img src="/assets/icons8-home-50.png" alt="home"></a>
-        <a href="/WanderScript/profile" class="username">@<%= currentUser.username %></a>
+        <a href="/WanderScript/homefeed" class="nav-icon">
+            <img src="/assets/icons8-home-50.png" alt="home">
+        </a>
+        <a href="/WanderScript/profile"><span class="username">@<%= currentUser.username %></span></a>
     </nav>
-
     <div class="dashboard-wrapper">
         <div class="dashboard-header">
             <h2>Dashboard</h2>
             <div class="action-buttons">
-                <button onclick="logout()">Logout</button>
-                <button onclick="confirmDelete()">Delete Account</button>
+                <button onclick="logout()">
+                    <img src="/assets/icons8-logout-30.png" alt="logout" class="logout"/>
+                    Logout
+                </button>
+                <button onclick="confirmDelete()">
+                    <img src="/assets/icons8-delete-user-data-48.png" alt="delete account" class="delete"/>
+                    Delete Account
+                </button>
             </div>
         </div>
 
         <div class="user-boxes">
             <div class="user-box">
-                <h3>Following (<span id="followingCount"><%= following.length %></span>)</h3>
-                <% following.forEach(user => { %>
+                <h3>Following (<span id="followingCount">
+                        <%= following.length %>
+                    </span>)</h3>
+                <% following.forEach(user=> { %>
                     <div class="user-row">
                         <span>@<%= user.username %></span>
                         <button onclick="unfollowUser('<%= user.userID %>', this)">Unfollow</button>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
 
             <div class="user-box">
-                <h3>Followers (<span id="followerCount"><%= followers.length %></span>)</h3>
-                <% followers.forEach(user => { %>
+                <h3>Followers (<span id="followerCount">
+                        <%= followers.length %>
+                    </span>)</h3>
+                <% followers.forEach(user=> { %>
                     <div class="user-row">
                         <span>@<%= user.username %></span>
                         <button onclick="removeFollower('<%= user.userID %>', this)">Remove</button>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -104,4 +171,5 @@
         }
     </script>
 </body>
+
 </html>
