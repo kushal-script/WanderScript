@@ -63,6 +63,11 @@ app.get('/WanderScript/signup', (req, res) => {
         message: req.query.message || null,
         messageType: req.query.info
     });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // GET Sign In
@@ -79,6 +84,11 @@ app.get('/WanderScript/forgot-password', (req, res) => {
         message: req.query.message || null,
         messageType: req.query.info
     });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // GET Verify OTP
@@ -86,6 +96,11 @@ app.get('/WanderScript/verify-otp', (req, res) => {
     res.render('otpVerification.ejs', {
         message: req.query.message || null,
         messageType: req.query.info
+    });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
     });
 });
 
@@ -98,6 +113,11 @@ app.post('/WanderScript/verify-otp', (req, res) => {
     if (OTPrequest) {
         sendOtp(req, res);
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // OTP Verification Function
@@ -162,6 +182,11 @@ function otpVerification(req, res) {
             messageType: 'error'
         });
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 }
 
 // Send OTP Function
@@ -236,6 +261,11 @@ function sendOtp(req, res) {
             messageType: 'error'
         });
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 }
 
 // POST Sign Up
@@ -259,6 +289,11 @@ app.post('/WanderScript/signup', async (req, res) => {
                     res.redirect('/WanderScript/signin?message=Registered successfully! redirecting to login&info=success');
                 });
         }
+    });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
     });
 });
 
@@ -291,6 +326,11 @@ app.post('/WanderScript/signin', (req, res) => {
                 res.redirect('/WanderScript/signin?message=Incorrect credentials&info=error');
             }
         }
+    });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
     });
 });
 
@@ -339,6 +379,11 @@ app.post('/WanderScript/reset-password', async (req, res) => {
             messageType: 'warning'
         });
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //user profile rendering
@@ -398,6 +443,11 @@ app.get('/WanderScript/profile', async (req, res) => {
     }
     catch (err) {
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // GET New Post Page
@@ -406,6 +456,11 @@ app.get('/WanderScript/posts/new', (req, res) => {
         return res.redirect('/WanderScript/signin?message=Please login to post&info=warning');
     }
     res.render('newPost', { user: req.session.user });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // POST New Post Submission
@@ -440,6 +495,11 @@ app.post('/WanderScript/posts/new', async (req, res) => {
         console.error("Error creating post:", err);
         res.status(500).send("Failed to create post. Try again.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // GET Edit
@@ -466,6 +526,11 @@ app.get('/WanderScript/posts/edit/:id', async (req, res) => {
         console.error("Error loading post for editing:", err);
         res.status(500).send("Internal server error.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // PUT Edit
@@ -495,6 +560,11 @@ app.put('/WanderScript/posts/edit/:id', async (req, res) => {
         console.error("Error updating post:", err);
         res.status(500).send("Error saving changes.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //Get edit profile
@@ -528,6 +598,11 @@ app.get('/WanderScript/profile/edit', async (req, res) => {
         console.error("Error loading profile edit page:", err);
         res.status(500).send("Error loading edit profile page.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //Put edit profile
@@ -557,6 +632,11 @@ app.put('/WanderScript/profile/edit', async (req, res) => {
         console.error("Error updating profile:", err);
         res.status(500).send("Error updating profile.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //delete post
@@ -595,6 +675,11 @@ app.post('/WanderScript/posts/delete/:id', async (req, res) => {
         console.error("Error deleting post:", err);
         res.status(500).send("Error deleting post.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //home feed get
@@ -642,6 +727,11 @@ app.get('/WanderScript/homefeed', async (req, res) => {
         console.error("Error loading home feed:", err);
         res.status(500).send("Server error loading feed.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //follow post
@@ -663,6 +753,11 @@ app.post('/WanderScript/follow/:id', async (req, res) => {
     );
 
     res.json({ success: true, isFollowing: true });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //unfollow post
@@ -680,6 +775,11 @@ app.post('/WanderScript/unfollow/:id', async (req, res) => {
     );
 
     res.json({ success: true, isFollowing: false });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //upvote post
@@ -722,6 +822,11 @@ app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
         console.error("Upvote error:", err);
         return res.status(500).json({ success: false, message: "Server error" });
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //other user get
@@ -768,6 +873,11 @@ app.get('/WanderScript/user/:id', async (req, res) => {
         user: profileData,
         currentUser: currentUser
     });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //search box
@@ -794,6 +904,11 @@ app.get('/WanderScript/search-users', (req, res) => {
         }
 
         res.json({ success: true, users: results });
+    });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
     });
 });
 
@@ -835,6 +950,11 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
         console.error("❌ Error loading mail form:", err);
         res.status(500).send("Server error");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // POST Mail Handler
@@ -901,6 +1021,11 @@ Do not reply to this email unless requested.
             messageType: "error"
         });
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 // get user function 
@@ -909,6 +1034,11 @@ async function getUserById(userID) {
         `SELECT userID, username FROM users WHERE userID = ?`,
         [userID]
     );
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
     return rows[0];
 }
 
@@ -951,6 +1081,11 @@ app.get('/WanderScript/profile/dashboard', async (req, res) => {
         console.error("Dashboard error:", err);
         res.status(500).send("Server error while loading dashboard.");
     }
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //remove follower post
@@ -968,12 +1103,22 @@ app.post('/WanderScript/remove-follower/:id', async (req, res) => {
     );
 
     res.json({ success: true });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 //post logout
 app.post('/WanderScript/logout', (req, res) => {
     req.session.destroy(() => {
         res.status(200).json({ success: true });
+    });
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
     });
 });
 
@@ -983,6 +1128,11 @@ app.delete('/WanderScript/delete-account', async (req, res) => {
     const userID = req.session.user.id;
     await db.promise().query(`DELETE FROM users WHERE userID = ?`, [userID]);
     req.session.destroy(() => res.json({ success: true }));
+    app.use((req, res) => {
+        res.status(404).render('404', {
+            user: req.session.user || null
+        });
+    });
 });
 
 app.listen(port);
