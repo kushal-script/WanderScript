@@ -63,7 +63,6 @@
     <div class="profile-wrapper">
         <div class="profile-header">
 
-            <!-- Username + Follow Button -->
             <div class="profile-top">
                 <h2 class="profile-username">@<%= user.username %>
                 </h2>
@@ -75,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- Bio and Stats side by side -->
             <div class="bio-and-stats">
                 <div class="bio">
                     <h3>Bio</h3>
@@ -101,7 +99,6 @@
                 </div>
             </div>
 
-            <!-- Mail & Message Buttons Below Bio/Stats -->
             <div class="action-buttons">
                 <a href="/WanderScript/user/<%= user._id %>/mail" class="action-btn edit-profile">
                     <span class="icon-text">
@@ -163,7 +160,6 @@
             }
         }
         document.addEventListener('DOMContentLoaded', () => {
-            // Follow/Unfollow Toggle
             const followBtn = document.querySelector('.follow-toggle');
             if (followBtn) {
                 followBtn.addEventListener('click', async () => {
@@ -181,7 +177,6 @@
                         followBtn.textContent = result.isFollowing ? 'Following' : '➕ Follow';
                         followBtn.className = result.isFollowing ? 'unfollow-btn follow-toggle' : 'follow-btn follow-toggle';
 
-                        // 🔁 Update follower count
                         const followerCountElem = document.getElementById('total-followers');
                         if (followerCountElem) {
                             let current = parseInt(followerCountElem.textContent);
@@ -191,7 +186,6 @@
                 });
             }
 
-            // Upvote Toggle for All Buttons
             document.querySelectorAll('.upvote-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const postID = btn.dataset.postid;
@@ -202,18 +196,14 @@
 
                     const result = await response.json();
                     if (result.success) {
-                        // Update button text
                         btn.textContent = result.isUpvoted
                             ? `Upvoted (${result.newUpvoteCount})`
                             : `➕ Upvote (${result.newUpvoteCount})`;
 
-                        // Update data attribute
                         btn.dataset.isupvoted = result.isUpvoted;
 
-                        // Toggle class for styling
                         btn.classList.toggle('upvoted', result.isUpvoted);
 
-                        // Update total upvotes shown in profile header
                         const totalUpvotesElem = document.getElementById('total-upvotes');
                         if (totalUpvotesElem) {
                             let current = parseInt(totalUpvotesElem.textContent);
@@ -222,7 +212,6 @@
                     }
                 });
 
-                // Set initial class on load based on dataset
                 if (btn.dataset.isupvoted === 'true') {
                     btn.classList.add('upvoted');
                 }

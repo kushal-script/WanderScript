@@ -38,7 +38,6 @@
     filter: invert(1) brightness(1.2) contrast(1.2);
   }
   
-  /* Specific button styles */
   .dashboard {
     background-color: #222;
     border: 1px solid #00f0ff;

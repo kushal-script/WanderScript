@@ -805,7 +805,7 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
         return res.redirect('/WanderScript/signin?message=Please login first&info=warning');
     }
 
-    const { message, messageType } = req.query; // ✅ extract from query
+    const { message, messageType } = req.query; 
 
     try {
         const [[toUser]] = await db.promise().query(
@@ -827,8 +827,8 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
             user: {
                 username: currentUser.username
             },
-            message,        // ✅ now passed to EJS
-            messageType     // ✅ now passed to EJS
+            message,      
+            messageType     
         });
 
     } catch (err) {
@@ -840,9 +840,67 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
 // POST Mail Handler
 app.post('/WanderScript/user/:id/mail', async (req, res) => {
     const { from, to, subject, body } = req.body;
+    const username = req.session.user?.username;
+    const toUserID = req.params.id;
 
-    // Redirect with success message
-    res.redirect(`/WanderScript/user/${req.params.id}/mail?message=Mail sent&messageType=success`);
+    if (!from || !to || !subject || !body || !username) {
+        return res.render('mail', {
+            toMail: to,
+            fromMail: from,
+            toUserID,
+            otherUsername: 'Recipient',
+            user: { username },
+            subject,
+            body,
+            message: "All fields are required.",
+            messageType: "error"
+        });
+    }
+
+    const formattedSubject = `${subject} `;
+    const formattedBody = `
+    || Mail from ${username} (${from}) ||
+
+  ${body}
+
+---
+
+This email was sent via WanderScript but not by WanderScript.
+Do not reply to this email unless requested.
+    `.trim();
+
+    try {
+        await transporter.sendMail({
+            from,
+            to,
+            subject: formattedSubject,
+            text: formattedBody
+        });
+
+        // Redirect only after success
+        res.redirect(`/WanderScript/user/${toUserID}/mail?message=Mail sent successfully!&messageType=success`);
+
+    } catch (error) {
+        console.error("❌ Failed to send mail:", error);
+
+        // Refetch the recipient's username in case of error to re-render the form
+        const [[toUser]] = await db.promise().query(
+            `SELECT username FROM users WHERE userID = ?`,
+            [toUserID]
+        );
+
+        res.render('mail', {
+            toMail: to,
+            fromMail: from,
+            toUserID,
+            otherUsername: toUser?.username || 'Recipient',
+            user: { username },
+            subject,
+            body,
+            message: "Failed to send mail. Please try again.",
+            messageType: "error"
+        });
+    }
 });
 
 // get user function 

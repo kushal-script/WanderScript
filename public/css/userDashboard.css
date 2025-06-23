@@ -38,6 +38,7 @@ a {
     filter: brightness(0) invert(1);
     transition: transform 0.3s ease;
 }
+
 .navbar img:hover {
     transform: scale(1.1);
 }
@@ -98,6 +99,7 @@ a {
     font-weight: bold;
     font-size: 1rem;
 }
+
 .action-buttons button:hover {
     background: #00f0ff33;
     box-shadow: 0 0 10px #00f0ff88, 0 0 20px #00f0ff44;
@@ -122,6 +124,7 @@ a {
     overflow-y: auto;
     transition: transform 0.3s;
 }
+
 .user-box:hover {
     transform: scale(1.01);
 }
@@ -143,6 +146,7 @@ a {
     padding: 0.5rem 1rem;
     transition: background 0.3s ease;
 }
+
 .user-row:hover {
     background: #333;
 }
@@ -153,6 +157,7 @@ a {
     text-shadow: 0 0 4px #00f0ff99;
     transition: text-shadow 0.3s;
 }
+
 .user-row span:hover {
     text-shadow: 0 0 10px #00f0ffcc;
     cursor: pointer;
@@ -168,6 +173,7 @@ a {
     cursor: pointer;
     transition: 0.3s ease;
 }
+
 .user-row button:hover {
     background-color: #ff4c4c22;
     box-shadow: 0 0 8px #ff4c4c88;
@@ -177,6 +183,7 @@ a {
 .user-box::-webkit-scrollbar {
     width: 6px;
 }
+
 .user-box::-webkit-scrollbar-thumb {
     background: #555;
     border-radius: 6px;

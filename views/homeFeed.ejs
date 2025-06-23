@@ -130,14 +130,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 🔁 Upvote Button
             document.querySelectorAll('.upvote-btn').forEach(button => {
-                // Set initial state
                 if (button.dataset.isupvoted === 'true') {
                     button.classList.add('upvoted');
                 }
-
-                // Add click event
                 button.addEventListener('click', async () => {
                     const postID = button.dataset.postid;
 
@@ -152,14 +148,11 @@
                             : `➕ Upvote (${data.newUpvoteCount})`;
 
                         button.dataset.isupvoted = data.isUpvoted;
-
-                        // 🔁 Add or remove class for styling
                         button.classList.toggle('upvoted', data.isUpvoted);
                     }
                 });
             });
 
-            // ➕ Follow/Unfollow Button
             document.querySelectorAll('.follow-toggle').forEach(button => {
                 button.addEventListener('click', async () => {
                     const userID = button.dataset.userid;
@@ -173,7 +166,6 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        // Update ALL buttons for that user
                         const allButtons = document.querySelectorAll(`.follow-toggle[data-userid="${userID}"]`);
                         allButtons.forEach(btn => {
                             btn.textContent = data.isFollowing ? 'Following' : '➕ Follow';
@@ -222,14 +214,14 @@
                 } catch (err) {
                     console.error(err);
                 }
-            }, 250); // debounce
+            }, 250); 
         });
 
         searchInput.addEventListener('blur', () => {
             setTimeout(() => {
                 searchPopup.classList.add('hidden');
                 document.body.classList.remove('blur-active');
-            }, 200); // Allow time for click
+            }, 200); 
         });
 
     </script>
