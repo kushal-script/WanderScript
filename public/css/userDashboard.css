@@ -1,18 +1,195 @@
+body {
+    background: #1c1c1c;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 1rem;
+    background: #0e0e0e;
+}
+
+a {
+    text-decoration: none;
+}
+
+.dashboard-wrapper {
+    max-width: 1000px;
+    margin: auto;
+    background: #181818;
+    border-radius: 14px;
+    padding: 2rem;
+    border: 1px solid #333;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.04);
+    width: 1000px;
+    margin: 0 auto 2rem auto;
+    padding: 1rem;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 14px rgba(0, 255, 255, 0.05);
+}
+
+.navbar img {
+    height: 28px;
+    filter: brightness(0) invert(1);
+    transition: transform 0.3s ease;
+}
+.navbar img:hover {
+    transform: scale(1.1);
+}
+
 .username {
     font-size: 1.1rem;
     font-weight: 600;
     padding: 0.3rem 0.8rem;
     border-radius: 8px;
-    background: linear-gradient(to right, #00f0ff22, #8e00ff22);
     color: #ffffff;
     text-shadow: 0 0 4px #00f0ff88;
     border: 1px solid rgba(255, 255, 255, 0.12);
     margin-left: 1rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: 0.3s ease;
 }
 
 .username:hover {
+    text-shadow: 0 0 8px #00f0ff, 0 0 10px #8e00ff;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-header h2 {
+    font-size: 1.6rem;
+    color: #00f0ff;
+    text-shadow: 0 0 5px #00f0ff55;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+.action-buttons button {
+    background: linear-gradient(to right, #0a0a0a, #1a1a1a);
+    border: 1px solid #00f0ff;
+    color: #00f0ff;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+.action-buttons button:hover {
+    background: #00f0ff33;
+    box-shadow: 0 0 10px #00f0ff88, 0 0 20px #00f0ff44;
     transform: scale(1.05);
-    box-shadow: 0 0 10px #00f0ff55;
-    background: linear-gradient(to right, #00f0ff55, #8e00ff55);
+}
+
+.user-boxes {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.user-box {
+    flex: 1;
+    background: linear-gradient(145deg, #1e1e1e, #141414);
+    padding: 1.2rem;
+    border-radius: 16px;
+    border: 1px solid #444;
+    box-shadow: 0 5px 15px #00000055;
+    max-height: 320px;
+    overflow-y: auto;
+    transition: transform 0.3s;
+}
+.user-box:hover {
+    transform: scale(1.01);
+}
+
+.user-box h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #ffaa00;
+    text-shadow: 0 0 4px #ffaa00aa;
+}
+
+.user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.6rem 0;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: background 0.3s ease;
+}
+.user-row:hover {
+    background: #333;
+}
+
+.user-row span {
+    color: #00f0ff;
+    font-weight: 500;
+    text-shadow: 0 0 4px #00f0ff99;
+    transition: text-shadow 0.3s;
+}
+.user-row span:hover {
+    text-shadow: 0 0 10px #00f0ffcc;
+    cursor: pointer;
+}
+
+.user-row button {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid #ff4c4c;
+    background-color: transparent;
+    color: #ff4c4c;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+.user-row button:hover {
+    background-color: #ff4c4c22;
+    box-shadow: 0 0 8px #ff4c4c88;
+    transform: scale(1.05);
+}
+
+.user-box::-webkit-scrollbar {
+    width: 6px;
+}
+.user-box::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+    .navbar, .dashboard-wrapper {
+        width: 95%;
+    }
+
+    .user-boxes {
+        flex-direction: column;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
 }

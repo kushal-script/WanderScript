@@ -845,6 +845,88 @@ app.post('/WanderScript/user/:id/mail', async (req, res) => {
     res.redirect(`/WanderScript/user/${req.params.id}/mail?message=Mail sent&messageType=success`);
 });
 
+// get user function 
+async function getUserById(userID) {
+    const [rows] = await db.promise().query(
+        `SELECT userID, username FROM users WHERE userID = ?`,
+        [userID]
+    );
+    return rows[0];
+}
+
+//dashboard get
+app.get('/WanderScript/profile/dashboard', async (req, res) => {
+    if (!req.session.user || !req.session.user.id) {
+        return res.redirect('/WanderScript/signin?message=Login to view dashboard&info=warning');
+    }
+
+    const userID = req.session.user.id;
+
+    try {
+        const currentUser = await getUserById(userID);
+
+        const [following] = await db.promise().query(`
+            SELECT u.userID, u.username FROM followers f
+            JOIN users u ON f.followingID = u.userID
+            WHERE f.followerID = ?
+        `, [userID]);
+
+        const [followers] = await db.promise().query(`
+            SELECT u.userID, u.username FROM followers f
+            JOIN users u ON f.followerID = u.userID
+            WHERE f.followingID = ?
+        `, [userID]);
+
+        const [posts] = await db.promise().query(`
+            SELECT title, (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes
+            FROM posts p
+            WHERE p.userID = ?
+        `, [userID]);
+
+        res.render('userDashboard', {
+            currentUser,
+            followers,
+            following,
+            posts
+        });
+    } catch (err) {
+        console.error("Dashboard error:", err);
+        res.status(500).send("Server error while loading dashboard.");
+    }
+});
+
+//remove follower post
+app.post('/WanderScript/remove-follower/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ success: false, message: 'Login required' });
+    }
+
+    const followingID = req.session.user.id;
+    const followerID = req.params.id;
+
+    await db.promise().query(
+        `DELETE FROM followers WHERE followerID = ? AND followingID = ?`,
+        [followerID, followingID]
+    );
+
+    res.json({ success: true });
+});
+
+//post logout
+app.post('/WanderScript/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.status(200).json({ success: true });
+    });
+});
+
+//delete account
+app.delete('/WanderScript/delete-account', async (req, res) => {
+    if (!req.session.user) return res.status(401).json({ success: false });
+    const userID = req.session.user.id;
+    await db.promise().query(`DELETE FROM users WHERE userID = ?`, [userID]);
+    req.session.destroy(() => res.json({ success: true }));
+});
+
 app.listen(port);
 
 // db.query('select *from users;', (req, res) => {

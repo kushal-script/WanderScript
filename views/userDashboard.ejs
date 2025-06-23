@@ -1,0 +1,107 @@
+<!-- userDashboard.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>WanderScript - Dashboard</title>
+    <link rel="stylesheet" href="/css/userDashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/WanderScript/homefeed"><img src="/assets/icons8-home-50.png" alt="home"></a>
+        <a href="/WanderScript/profile" class="username">@<%= currentUser.username %></a>
+    </nav>
+
+    <div class="dashboard-wrapper">
+        <div class="dashboard-header">
+            <h2>Dashboard</h2>
+            <div class="action-buttons">
+                <button onclick="logout()">Logout</button>
+                <button onclick="confirmDelete()">Delete Account</button>
+            </div>
+        </div>
+
+        <div class="user-boxes">
+            <div class="user-box">
+                <h3>Following (<span id="followingCount"><%= following.length %></span>)</h3>
+                <% following.forEach(user => { %>
+                    <div class="user-row">
+                        <span>@<%= user.username %></span>
+                        <button onclick="unfollowUser('<%= user.userID %>', this)">Unfollow</button>
+                    </div>
+                <% }); %>
+            </div>
+
+            <div class="user-box">
+                <h3>Followers (<span id="followerCount"><%= followers.length %></span>)</h3>
+                <% followers.forEach(user => { %>
+                    <div class="user-row">
+                        <span>@<%= user.username %></span>
+                        <button onclick="removeFollower('<%= user.userID %>', this)">Remove</button>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+        function logout() {
+            Swal.fire({
+                title: 'Logout?',
+                text: 'Are you sure you want to logout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Logout',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/WanderScript/logout', { method: 'POST' })
+                        .then(() => window.location.href = '/WanderScript/signin');
+                }
+            });
+        }
+
+        function confirmDelete() {
+            Swal.fire({
+                title: 'Delete Account?',
+                text: 'This action is irreversible!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/WanderScript/delete-account', { method: 'DELETE' })
+                        .then(() => window.location.href = '/WanderScript/signin');
+                }
+            });
+        }
+
+        function unfollowUser(userID, btn) {
+            fetch(`/WanderScript/unfollow/${userID}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.parentElement.remove();
+                        document.getElementById("followingCount").textContent--;
+                    }
+                });
+        }
+
+        function removeFollower(userID, btn) {
+            fetch(`/WanderScript/remove-follower/${userID}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.parentElement.remove();
+                        document.getElementById("followerCount").textContent--;
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
