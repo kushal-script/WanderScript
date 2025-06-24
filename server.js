@@ -10,6 +10,10 @@ const { v4: uuidv4 } = require('uuid');
 const methodOverride = require('method-override');
 const nodemailer = require('nodemailer');
 const validator = require('validator');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const Comment = require('./models/Comment');
+const Message = require('./models/Message');
 
 const port = process.env.PORT;
 const saltRounds = 10;
@@ -30,6 +34,10 @@ const db = connection.createConnection({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
+
+mongoose.connect('mongodb://localhost:27017/wanderscript')
+  .then(() => console.log("✅ MongoDB connected for comments and messaging"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
 
 db.connect((err) => {
     if (err) {
@@ -920,7 +928,7 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
         return res.redirect('/WanderScript/signin?message=Please login first&info=warning');
     }
 
-    const { message, messageType } = req.query; 
+    const { message, messageType } = req.query;
 
     try {
         const [[toUser]] = await db.promise().query(
@@ -942,8 +950,8 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
             user: {
                 username: currentUser.username
             },
-            message,      
-            messageType     
+            message,
+            messageType
         });
 
     } catch (err) {
@@ -1133,6 +1141,42 @@ app.delete('/WanderScript/delete-account', async (req, res) => {
             user: req.session.user || null
         });
     });
+});
+
+// POST: Add Comment or Reply
+app.post('/WanderScript/comments/:postID', async (req, res) => {
+    const { content, parentID } = req.body;
+    const { postID } = req.params;
+
+    if (!req.session.user) return res.status(401).json({ success: false });
+
+    const newComment = new Comment({
+        postID,
+        userID: req.session.user.id,
+        username: req.session.user.username,
+        content,
+        parentID: parentID || null
+    });
+
+    await newComment.save();
+    res.redirect('back'); // reload current page
+});
+
+// GET: Fetch Comments for Post (with nested replies)
+app.get('/WanderScript/comments/:postID', async (req, res) => {
+    const comments = await Comment.find({ postID: req.params.postID });
+    res.json({ success: true, comments });
+});
+
+// DELETE: Delete Comment
+app.post('/WanderScript/comments/delete/:id', async (req, res) => {
+    const comment = await Comment.findById(req.params.id);
+    if (comment.userID === req.session.user.id) {
+        await comment.deleteOne();
+        res.json({ success: true });
+    } else {
+        res.status(403).json({ success: false, message: "Unauthorized" });
+    }
 });
 
 app.listen(port);
