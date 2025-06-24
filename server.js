@@ -64,7 +64,7 @@ app.get('/WanderScript/signup', (req, res) => {
         messageType: req.query.info
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -85,7 +85,7 @@ app.get('/WanderScript/forgot-password', (req, res) => {
         messageType: req.query.info
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -98,7 +98,7 @@ app.get('/WanderScript/verify-otp', (req, res) => {
         messageType: req.query.info
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -114,7 +114,7 @@ app.post('/WanderScript/verify-otp', (req, res) => {
         sendOtp(req, res);
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -183,7 +183,7 @@ function otpVerification(req, res) {
         });
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -262,7 +262,7 @@ function sendOtp(req, res) {
         });
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -291,7 +291,7 @@ app.post('/WanderScript/signup', async (req, res) => {
         }
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -328,7 +328,7 @@ app.post('/WanderScript/signin', (req, res) => {
         }
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -380,7 +380,7 @@ app.post('/WanderScript/reset-password', async (req, res) => {
         });
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -444,7 +444,7 @@ app.get('/WanderScript/profile', async (req, res) => {
     catch (err) {
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -457,7 +457,7 @@ app.get('/WanderScript/posts/new', (req, res) => {
     }
     res.render('newPost', { user: req.session.user });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -496,7 +496,7 @@ app.post('/WanderScript/posts/new', async (req, res) => {
         res.status(500).send("Failed to create post. Try again.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -527,7 +527,7 @@ app.get('/WanderScript/posts/edit/:id', async (req, res) => {
         res.status(500).send("Internal server error.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -561,7 +561,7 @@ app.put('/WanderScript/posts/edit/:id', async (req, res) => {
         res.status(500).send("Error saving changes.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -599,7 +599,7 @@ app.get('/WanderScript/profile/edit', async (req, res) => {
         res.status(500).send("Error loading edit profile page.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -633,7 +633,7 @@ app.put('/WanderScript/profile/edit', async (req, res) => {
         res.status(500).send("Error updating profile.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -676,7 +676,7 @@ app.post('/WanderScript/posts/delete/:id', async (req, res) => {
         res.status(500).send("Error deleting post.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -728,7 +728,7 @@ app.get('/WanderScript/homefeed', async (req, res) => {
         res.status(500).send("Server error loading feed.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -754,7 +754,7 @@ app.post('/WanderScript/follow/:id', async (req, res) => {
 
     res.json({ success: true, isFollowing: true });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -776,7 +776,7 @@ app.post('/WanderScript/unfollow/:id', async (req, res) => {
 
     res.json({ success: true, isFollowing: false });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -823,7 +823,7 @@ app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error" });
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -874,7 +874,7 @@ app.get('/WanderScript/user/:id', async (req, res) => {
         currentUser: currentUser
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -906,7 +906,7 @@ app.get('/WanderScript/search-users', (req, res) => {
         res.json({ success: true, users: results });
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -951,7 +951,7 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
         res.status(500).send("Server error");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -1022,7 +1022,7 @@ Do not reply to this email unless requested.
         });
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -1035,7 +1035,7 @@ async function getUserById(userID) {
         [userID]
     );
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -1082,7 +1082,7 @@ app.get('/WanderScript/profile/dashboard', async (req, res) => {
         res.status(500).send("Server error while loading dashboard.");
     }
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -1104,7 +1104,7 @@ app.post('/WanderScript/remove-follower/:id', async (req, res) => {
 
     res.json({ success: true });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -1116,7 +1116,7 @@ app.post('/WanderScript/logout', (req, res) => {
         res.status(200).json({ success: true });
     });
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
@@ -1129,7 +1129,7 @@ app.delete('/WanderScript/delete-account', async (req, res) => {
     await db.promise().query(`DELETE FROM users WHERE userID = ?`, [userID]);
     req.session.destroy(() => res.json({ success: true }));
     app.use((req, res) => {
-        res.status(404).render('404', {
+        res.status(404).render('pageNotFound', {
             user: req.session.user || null
         });
     });
