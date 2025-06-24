@@ -15,6 +15,84 @@
             margin-top: 5px;
             font-weight: bold;
         }
+
+        .comments-container {
+            background: #1e1e1e;
+            padding: 1rem;
+            margin-top: 10px;
+            border-radius: 8px;
+            width: 100%;
+            display: block;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .comments-container.hidden {
+            display: none;
+        }
+
+        .comment {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-left: 2px solid #00d4ff44;
+        }
+
+        .comment button {
+            background: none;
+            border: none;
+            color: #00d4ff;
+            margin-right: 10px;
+            cursor: pointer;
+            padding: 6px 12px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+            background: #2e2e2e;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        .comment-form button {
+            padding: 4px 10px;
+            background: #00d4ff;
+            border: none;
+            color: black;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-toggle-wrapper {
+            margin-top: 10px 0;
+        }
+
+        .comment-toggle-wrapper .comment-toggle {
+            background-color: #222;
+            color: #00d4ff;
+            border: 1px solid #00d4ff88;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        .comment-toggle-wrapper .comment-toggle:hover {
+            background-color: #00d4ff22;
+            color: #00ffff;
+        }
+
+        .btn-delete img {
+            height: 18px;
+            width: 18px;
+        }
     </style>
 </head>
 
@@ -56,8 +134,8 @@
         <div class="action-buttons">
             <a href="/WanderScript/profile/edit" class="action-btn edit-profile"><img
                     src="/assets/edit-info_9977203.png" alt="edit"> Edit Profile</a>
-            <a href="/WanderScript/profile/dashboard" class="action-btn dashboard"><img src="/assets/icons8-dashboard-64-2.png"
-                    alt="dashboard"> Dashboard</a>
+            <a href="/WanderScript/profile/dashboard" class="action-btn dashboard"><img
+                    src="/assets/icons8-dashboard-64-2.png" alt="dashboard"> Dashboard</a>
         </div>
 
         <% user.posts.forEach(post=> {
@@ -87,15 +165,29 @@
                                 <span class="upvote-text">Up Votes</span>
                                 (<%= post.upvotes %>)
                             </span>
+
+                            <!-- 💬 Comment Toggle Button -->
+                            <div class="comment-toggle-wrapper">
+                                <button class="read-toggle-btn comment-toggle" data-postid="<%= post._id %>">
+                                    💬 Comments
+                                </button>
+                            </div>
+
+                            <!-- 🔽 Comments Section -->
+                            <div class="comments-container hidden" id="comments-<%= post._id %>">
+                                <form class="comment-form" data-postid="<%= post._id %>">
+                                    <textarea name="content" placeholder="Add a comment..." required></textarea>
+                                    <input type="hidden" name="parentID" value="">
+                                    <button type="submit">Post</button>
+                                </form>
+                                <div class="comments-list"></div>
+                            </div>
+
                             <div class="post-actions">
 
-                                <form id="delete-form-<%= post._id %>"
-                                    action="/WanderScript/posts/delete/<%= post._id %>" method="POST"
-                                    style="display: inline;">
-                                    <button type="button" class="btn-delete" onclick="confirmDelete('<%= post._id %>')">
-                                        <img src="/assets/icons8-delete-24.png" alt=""> Delete Post
-                                    </button>
-                                </form>
+                                <button type="button" class="btn-delete" onclick="deletePost('<%= post._id %>')">
+                                    <img src="/assets/icons8-delete-24.png" alt=""> Delete Post
+                                </button>
 
                                 <form action="/WanderScript/posts/edit/<%= post._id %>" method="GET"
                                     style="display: inline;">
@@ -113,35 +205,177 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function confirmDelete(postId) {
+
+        function deletePost(postID) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "This action will permanently delete your post.",
+                text: "This post will be permanently deleted!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
+                confirmButtonColor: '#00d4ff',
+                cancelButtonColor: '#555',
+                confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById(`delete-form-${postId}`).submit();
+                    fetch(`/WanderScript/posts/delete/${postID}`, {
+                        method: 'DELETE'
+                    }).then(res => {
+                        if (res.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Your post has been deleted.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload(); // Or use window.location.href = '/WanderScript/profile';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: 'Could not delete the post.'
+                            });
+                        }
+                    });
                 }
             });
         }
 
-        function toggleReadMore(btn, postID) {
-            const desc = document.getElementById(`desc-${postID}`);
-            const fullText = btn.getAttribute("data-full");
-            const shortText = btn.getAttribute("data-short");
+        const currentUserID = "<%= user._id %>";
+        const postIDToOwnerMap = { <% user.posts.forEach((post, i) => { %>
+            "<%= post._id %>": "<%= user._id %>" <%= i < user.posts.length - 1 ? ',' : '' %>
+<% }) %> };
 
-            if (btn.textContent.includes("Read more")) {
-                desc.textContent = fullText;
-                btn.textContent = "Read less";
-            } else {
-                desc.textContent = shortText;
-                btn.textContent = "Read more...";
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.comment-toggle').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const pid = btn.dataset.postid;
+                    const container = document.getElementById(`comments-${pid}`);
+                    container.classList.toggle('hidden');
+                    if (!container.classList.contains('loaded')) {
+                        const resp = await fetch(`/WanderScript/comments/${pid}`);
+                        const data = await resp.json();
+                        if (data.success) {
+                            renderComments(container.querySelector('.comments-list'), data.comments, pid);
+                            container.classList.add('loaded');
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.comment-form').forEach(form => {
+                form.addEventListener('submit', async e => {
+                    e.preventDefault();
+                    const pid = form.dataset.postid;
+                    const res = await fetch(`/WanderScript/comments/${pid}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: form.content.value, parentID: form.parentID.value })
+                    });
+                    if (res.ok) {
+                        form.content.value = '';
+                        form.parentID.value = '';
+                        const updated = await fetch(`/WanderScript/comments/${pid}`);
+                        const result = await updated.json();
+                        if (result.success) {
+                            const list = form.closest('.comments-container').querySelector('.comments-list');
+                            list.innerHTML = '';
+                            renderComments(list, result.comments, pid);
+                        }
+                    }
+                });
+            });
+        });
+
+        function renderComments(container, comments, postID, level = 0) {
+            comments.forEach(comment => {
+                const postOwn = postIDToOwnerMap[postID] === currentUserID;
+
+                const wr = document.createElement('div');
+                wr.className = 'comment';
+                wr.style.marginLeft = level * 20 + 'px';
+
+                wr.innerHTML = `
+            <p><strong>@${comment.username}</strong>: ${comment.commentText}</p>
+            <button class="reply-btn" data-commentid="${comment._id}" data-postid="${postID}">↪ Reply</button>
+            ${postOwn ? `<button class="delete-btn" data-id="${comment._id}" data-postid="${postID}">Delete</button>` : ''}
+            <div class="replies"></div>
+        `;
+
+                container.appendChild(wr);
+
+                if (comment.replies && comment.replies.length > 0) {
+                    renderComments(wr.querySelector('.replies'), comment.replies, postID, level + 1);
+                }
+            });
+
+            // Attach reply handlers
+            container.querySelectorAll('.reply-btn').forEach(b => {
+                b.onclick = () => {
+                    const f = document.querySelector(`.comment-form[data-postid="${b.dataset.postid}"]`);
+                    f.parentID.value = b.dataset.commentid;
+                    f.content.focus();
+                };
+            });
+
+            // Attach delete handlers
+            container.querySelectorAll('.delete-btn').forEach(b => {
+                b.onclick = async () => {
+                    const commentID = b.dataset.id;
+                    const postID = b.dataset.postid;
+
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'This will delete the comment and all its replies.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#00d4ff',
+                        cancelButtonColor: '#555',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    });
+
+                    if (result.isConfirmed) {
+                        try {
+                            const resp = await fetch(`/WanderScript/comments/delete/${commentID}`, {
+                                method: 'POST'
+                            });
+
+                            if (resp.ok) {
+                                const upd = await fetch(`/WanderScript/comments/${postID}`);
+                                const dt = await upd.json();
+                                if (dt.success) {
+                                    const commentBox = document.querySelector(`#comments-${postID} .comments-list`);
+                                    commentBox.innerHTML = '';
+                                    renderComments(commentBox, dt.comments, postID);
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        text: 'Comment and replies removed.',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                }
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed',
+                                    text: 'Could not delete comment.'
+                                });
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops!',
+                                text: 'Something went wrong.'
+                            });
+                        }
+                    }
+                };
+            });
         }
     </script>
 </body>

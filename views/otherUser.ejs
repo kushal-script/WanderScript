@@ -20,7 +20,7 @@
             background-color: transparent;
             color: #ccc;
             border: 1px solid #00d4ff;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
@@ -31,6 +31,79 @@
             color: #47ff75;
             font-weight: bold;
             border: 1px solid #47ff75;
+        }
+
+        .comments-container {
+            background: #1e1e1e;
+            padding: 1rem;
+            margin-top: 10px;
+            border-radius: 8px;
+            width: 100%;
+            display: block;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .comments-container.hidden {
+            display: none;
+        }
+
+        .comment {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-left: 2px solid #00d4ff44;
+        }
+
+        .comment button {
+            background: none;
+            border: none;
+            color: #00d4ff;
+            margin-right: 10px;
+            cursor: pointer;
+            padding: 6px 12px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+            background: #2e2e2e;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        .comment-form button {
+            padding: 4px 10px;
+            background: #00d4ff;
+            border: none;
+            color: black;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-toggle-wrapper {
+            margin-top: 10px 0;
+        }
+
+        .comment-toggle-wrapper .comment-toggle {
+            background-color: #222;
+            color: #00d4ff;
+            border: 1px solid #00d4ff88;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        .comment-toggle-wrapper .comment-toggle:hover {
+            background-color: #00d4ff22;
+            color: #00ffff;
         }
     </style>
 </head>
@@ -45,18 +118,18 @@
                     <img src="/assets/linkedin_3536569.png" alt="LinkedIn">
                 </a>
                 <% } %>
-                
-                <% if (user.instagram) { %>
-                <a href="<%= user.instagram %>" target="_blank" rel="noopener noreferrer">
-                    <img src="/assets/instagram_1400829.png" alt="Instagram">
-                </a>
-                <% } %>
-                
-                <% if (user.youtube) { %>
-                <a href="<%= user.youtube %>" target="_blank" rel="noopener noreferrer">
-                    <img src="/assets/youtube_1384028.png" alt="YouTube">
-                </a>
-                <% } %>
+
+                    <% if (user.instagram) { %>
+                        <a href="<%= user.instagram %>" target="_blank" rel="noopener noreferrer">
+                            <img src="/assets/instagram_1400829.png" alt="Instagram">
+                        </a>
+                        <% } %>
+
+                            <% if (user.youtube) { %>
+                                <a href="<%= user.youtube %>" target="_blank" rel="noopener noreferrer">
+                                    <img src="/assets/youtube_1384028.png" alt="YouTube">
+                                </a>
+                                <% } %>
         </div>
     </nav>
 
@@ -136,14 +209,39 @@
                     <% } %>
 
                         <div class="post-footer">
-                            <button class="upvote-btn" data-postid="<%= post._id %>"
-                                data-isupvoted="<%= post.isUpvoted ? 'true' : 'false' %>" data-upvotes="<%= post.upvotes %>">
-                                <%= post.isUpvoted ? `Upvoted (${post.upvotes})` : `➕ Upvote (${post.upvotes})` %>
-                            </button>
+                            <!-- Posted By Info -->
+
+                            <!-- 💬 Comment Toggle Button -->
+                            <div class="comment-toggle-wrapper">
+                                <button class="read-toggle-btn comment-toggle" data-postid="<%= post._id %>">
+                                    💬 Comments
+                                </button>
+                            </div>
+
+                            <!-- 🔽 Comments Section -->
+                            <div class="comments-container hidden" id="comments-<%= post._id %>">
+                                <form class="comment-form" data-postid="<%= post._id %>">
+                                    <textarea name="content" placeholder="Add a comment..." required></textarea>
+                                    <input type="hidden" name="parentID" value="">
+                                    <button type="submit">Post</button>
+                                </form>
+                                <div class="comments-list"></div>
+                            </div>
+
+                            <!-- Upvote & Follow Buttons -->
+                            <div class="post-actions">
+                                <button class="btn-edit upvote-btn" data-postid="<%= post._id %>"
+                                    data-isupvoted="<%= post.isUpvoted ? 'true' : 'false' %>">
+                                    <%= post.isUpvoted ? `Upvoted (${post.upvotes})` : `➕ Upvote (${post.upvotes})` %>
+                                </button>
+                            </div>
+
                         </div>
             </div>
             <% }) %>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function toggleReadMore(btn, postID) {
@@ -217,7 +315,139 @@
                 }
             });
         });
-    </script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Toggle comments section
+            // COMMENT TOGGLE BUTTON (💬 open/close)
+            document.querySelectorAll('.comment-toggle').forEach(btn => {
+                btn.onclick = async () => {
+                    const postID = btn.dataset.postid;
+                    const container = document.getElementById(`comments-${postID}`);
+                    container.classList.toggle('hidden');
+
+                    if (!container.classList.contains('loaded')) {
+                        const resp = await fetch(`/WanderScript/comments/${postID}`);
+                        const data = await resp.json();
+                        if (data.success) {
+                            renderComments(container.querySelector('.comments-list'), data.comments, postID);
+                            container.classList.add('loaded');
+                        }
+                    }
+                };
+            });
+
+            // Submit comment form (add or reply)
+            document.querySelectorAll('.comment-form').forEach(form => {
+                form.addEventListener('submit', async e => {
+                    e.preventDefault();
+                    const postID = form.dataset.postid;
+                    const content = form.content.value.trim();
+                    const parentID = form.parentID.value;
+
+                    if (!content) return;
+
+                    const res = await fetch(`/WanderScript/comments/${postID}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content, parentID })
+                    });
+
+                    if (res.ok) {
+                        form.content.value = '';
+                        form.parentID.value = '';
+                        const updated = await fetch(`/WanderScript/comments/${postID}`);
+                        const data = await updated.json();
+                        if (data.success) {
+                            const commentList = form.closest('.comments-container').querySelector('.comments-list');
+                            commentList.innerHTML = '';
+                            renderComments(commentList, data.comments, postID);
+                        }
+                    }
+                });
+            });
+        });
+
+        // Recursive comment rendering
+        function renderComments(container, comments, postID, level = 0) {
+            comments.forEach(comment => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'comment';
+                wrapper.style.marginLeft = `${level * 20}px`;
+
+                const user = comment.username;
+                const content = comment.commentText;
+                const isOwner = comment.userID === '<%= currentUser.id %>';
+
+                wrapper.innerHTML = `
+            <p><strong>@${user}</strong>: ${content}</p>
+            <button class="reply-btn" data-commentid="${comment._id}" data-postid="${postID}">↪ Reply</button>
+            ${isOwner ? `<button class="delete-btn" data-id="${comment._id}">Delete</button>` : ''}
+            <div class="replies"></div>
+        `;
+
+                container.appendChild(wrapper);
+
+                if (comment.replies && comment.replies.length > 0) {
+                    renderComments(wrapper.querySelector('.replies'), comment.replies, postID, level + 1);
+                }
+            });
+
+            // Handle reply
+            container.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const commentID = btn.dataset.commentid;
+                    const postID = btn.dataset.postid;
+                    const form = document.querySelector(`.comment-form[data-postid="${postID}"]`);
+                    form.parentID.value = commentID;
+                    form.content.focus();
+                };
+            });
+
+            // Handle delete
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    const commentID = btn.dataset.id;
+
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'This will delete the comment and all its replies.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#00d4ff',
+                        cancelButtonColor: '#555',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    });
+
+                    if (result.isConfirmed) {
+                        const res = await fetch(`/WanderScript/comments/delete/${commentID}`, { method: 'POST' });
+                        if (res.ok) {
+                            const updated = await fetch(`/WanderScript/comments/${postID}`);
+                            const data = await updated.json();
+                            if (data.success) {
+                                const commentList = container;
+                                commentList.innerHTML = '';
+                                renderComments(commentList, data.comments, postID);
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Comment and replies deleted.',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to delete comment.'
+                            });
+                        }
+                    }
+                };
+            });
+        }
     </script>
 </body>
 

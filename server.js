@@ -15,6 +15,9 @@ const Schema = mongoose.Schema;
 const Comment = require('./models/Comment');
 const Message = require('./models/Message');
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const port = process.env.PORT;
 const saltRounds = 10;
 
@@ -36,8 +39,8 @@ const db = connection.createConnection({
 });
 
 mongoose.connect('mongodb://localhost:27017/wanderscript')
-  .then(() => console.log("✅ MongoDB connected for comments and messaging"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log("MongoDB connected for comments and messaging"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
 db.connect((err) => {
     if (err) {
@@ -71,11 +74,7 @@ app.get('/WanderScript/signup', (req, res) => {
         message: req.query.message || null,
         messageType: req.query.info
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // GET Sign In
@@ -92,11 +91,7 @@ app.get('/WanderScript/forgot-password', (req, res) => {
         message: req.query.message || null,
         messageType: req.query.info
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // GET Verify OTP
@@ -105,11 +100,7 @@ app.get('/WanderScript/verify-otp', (req, res) => {
         message: req.query.message || null,
         messageType: req.query.info
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //Post verify otp
@@ -121,11 +112,7 @@ app.post('/WanderScript/verify-otp', (req, res) => {
     if (OTPrequest) {
         sendOtp(req, res);
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // OTP Verification Function
@@ -190,11 +177,7 @@ function otpVerification(req, res) {
             messageType: 'error'
         });
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 }
 
 // Send OTP Function
@@ -269,11 +252,7 @@ function sendOtp(req, res) {
             messageType: 'error'
         });
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 }
 
 // POST Sign Up
@@ -298,11 +277,7 @@ app.post('/WanderScript/signup', async (req, res) => {
                 });
         }
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // POST Sign In
@@ -335,11 +310,7 @@ app.post('/WanderScript/signin', (req, res) => {
             }
         }
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //POST password reset
@@ -387,11 +358,7 @@ app.post('/WanderScript/reset-password', async (req, res) => {
             messageType: 'warning'
         });
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //user profile rendering
@@ -451,11 +418,7 @@ app.get('/WanderScript/profile', async (req, res) => {
     }
     catch (err) {
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // GET New Post Page
@@ -464,11 +427,7 @@ app.get('/WanderScript/posts/new', (req, res) => {
         return res.redirect('/WanderScript/signin?message=Please login to post&info=warning');
     }
     res.render('newPost', { user: req.session.user });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // POST New Post Submission
@@ -503,11 +462,7 @@ app.post('/WanderScript/posts/new', async (req, res) => {
         console.error("Error creating post:", err);
         res.status(500).send("Failed to create post. Try again.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // GET Edit
@@ -534,11 +489,7 @@ app.get('/WanderScript/posts/edit/:id', async (req, res) => {
         console.error("Error loading post for editing:", err);
         res.status(500).send("Internal server error.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // PUT Edit
@@ -568,11 +519,7 @@ app.put('/WanderScript/posts/edit/:id', async (req, res) => {
         console.error("Error updating post:", err);
         res.status(500).send("Error saving changes.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //Get edit profile
@@ -606,11 +553,7 @@ app.get('/WanderScript/profile/edit', async (req, res) => {
         console.error("Error loading profile edit page:", err);
         res.status(500).send("Error loading edit profile page.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //Put edit profile
@@ -640,19 +583,15 @@ app.put('/WanderScript/profile/edit', async (req, res) => {
         console.error("Error updating profile:", err);
         res.status(500).send("Error updating profile.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //delete post
-app.post('/WanderScript/posts/delete/:id', async (req, res) => {
+app.delete('/WanderScript/posts/delete/:id', async (req, res) => {
     const postID = req.params.id;
 
     if (!req.session.user || !req.session.user.email) {
-        return res.redirect('/WanderScript/signin?message=Please login to delete posts&info=warning');
+        return res.status(401).json({ success: false, message: 'Please login to delete posts.' });
     }
 
     try {
@@ -662,7 +601,7 @@ app.post('/WanderScript/posts/delete/:id', async (req, res) => {
         );
 
         if (!user) {
-            return res.redirect('/WanderScript/signin?message=User not found&info=error');
+            return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
         const [postRows] = await db.promise().query(
@@ -671,23 +610,17 @@ app.post('/WanderScript/posts/delete/:id', async (req, res) => {
         );
 
         if (postRows.length === 0) {
-            return res.status(403).send("Unauthorized or post not found.");
+            return res.status(403).json({ success: false, message: 'Unauthorized or post not found.' });
         }
 
         await db.promise().query(`DELETE FROM posts WHERE postID = ?`, [postID]);
-
         await db.promise().query(`DELETE FROM post_upvotes WHERE postID = ?`, [postID]);
 
-        res.redirect('/WanderScript/profile');
+        return res.status(200).json({ success: true, message: 'Post deleted successfully.' });
     } catch (err) {
         console.error("Error deleting post:", err);
-        res.status(500).send("Error deleting post.");
+        return res.status(500).json({ success: false, message: 'Error deleting post.' });
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
 });
 
 //home feed get
@@ -735,11 +668,7 @@ app.get('/WanderScript/homefeed', async (req, res) => {
         console.error("Error loading home feed:", err);
         res.status(500).send("Server error loading feed.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //follow post
@@ -761,11 +690,7 @@ app.post('/WanderScript/follow/:id', async (req, res) => {
     );
 
     res.json({ success: true, isFollowing: true });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //unfollow post
@@ -783,11 +708,7 @@ app.post('/WanderScript/unfollow/:id', async (req, res) => {
     );
 
     res.json({ success: true, isFollowing: false });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //upvote post
@@ -830,11 +751,7 @@ app.post('/WanderScript/posts/upvote/:id', async (req, res) => {
         console.error("Upvote error:", err);
         return res.status(500).json({ success: false, message: "Server error" });
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //other user get
@@ -881,11 +798,7 @@ app.get('/WanderScript/user/:id', async (req, res) => {
         user: profileData,
         currentUser: currentUser
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //search box
@@ -913,11 +826,7 @@ app.get('/WanderScript/search-users', (req, res) => {
 
         res.json({ success: true, users: results });
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //mail get 
@@ -958,11 +867,7 @@ app.get('/WanderScript/user/:id/mail', async (req, res) => {
         console.error("❌ Error loading mail form:", err);
         res.status(500).send("Server error");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // POST Mail Handler
@@ -1029,11 +934,7 @@ Do not reply to this email unless requested.
             messageType: "error"
         });
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 // get user function 
@@ -1042,11 +943,7 @@ async function getUserById(userID) {
         `SELECT userID, username FROM users WHERE userID = ?`,
         [userID]
     );
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
     return rows[0];
 }
 
@@ -1089,11 +986,7 @@ app.get('/WanderScript/profile/dashboard', async (req, res) => {
         console.error("Dashboard error:", err);
         res.status(500).send("Server error while loading dashboard.");
     }
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //remove follower post
@@ -1111,11 +1004,7 @@ app.post('/WanderScript/remove-follower/:id', async (req, res) => {
     );
 
     res.json({ success: true });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //post logout
@@ -1123,11 +1012,7 @@ app.post('/WanderScript/logout', (req, res) => {
     req.session.destroy(() => {
         res.status(200).json({ success: true });
     });
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    
 });
 
 //delete account
@@ -1136,11 +1021,7 @@ app.delete('/WanderScript/delete-account', async (req, res) => {
     const userID = req.session.user.id;
     await db.promise().query(`DELETE FROM users WHERE userID = ?`, [userID]);
     req.session.destroy(() => res.json({ success: true }));
-    app.use((req, res) => {
-        res.status(404).render('pageNotFound', {
-            user: req.session.user || null
-        });
-    });
+    res.clearCookie('connect.sid');  
 });
 
 // POST: Add Comment or Reply
@@ -1150,36 +1031,140 @@ app.post('/WanderScript/comments/:postID', async (req, res) => {
 
     if (!req.session.user) return res.status(401).json({ success: false });
 
-    const newComment = new Comment({
-        postID,
-        userID: req.session.user.id,
-        username: req.session.user.username,
-        content,
-        parentID: parentID || null
-    });
+    try {
+        const newComment = new Comment({
+            postID,
+            userID: req.session.user.id,
+            username: req.session.user.username,
+            commentText: content, // <---- Fix this line
+            parentID: parentID || null
+        });
 
-    await newComment.save();
-    res.redirect('back'); // reload current page
-});
-
-// GET: Fetch Comments for Post (with nested replies)
-app.get('/WanderScript/comments/:postID', async (req, res) => {
-    const comments = await Comment.find({ postID: req.params.postID });
-    res.json({ success: true, comments });
-});
-
-// DELETE: Delete Comment
-app.post('/WanderScript/comments/delete/:id', async (req, res) => {
-    const comment = await Comment.findById(req.params.id);
-    if (comment.userID === req.session.user.id) {
-        await comment.deleteOne();
-        res.json({ success: true });
-    } else {
-        res.status(403).json({ success: false, message: "Unauthorized" });
+        await newComment.save();
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error("Error saving comment:", err);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
-app.listen(port);
+// GET: Fetch Comments for Post (with nested replies)
+function nestComments(comments) {
+    const map = {};
+    const roots = [];
+
+    comments.forEach(c => {
+        const comment = c.toObject();
+        comment.replies = [];
+        map[comment._id] = comment;
+    });
+
+    comments.forEach(c => {
+        const comment = map[c._id];
+        if (comment.parentID) {
+            if (map[comment.parentID]) {
+                map[comment.parentID].replies.push(comment);
+            }
+        } else {
+            roots.push(comment);
+        }
+    });
+
+    return roots;
+}
+
+app.get('/WanderScript/comments/:postID', async (req, res) => {
+    try {
+        const flatComments = await Comment.find({ postID: req.params.postID }).sort({ createdAt: 1 });
+        const nestedComments = nestComments(flatComments);
+        res.json({ success: true, comments: nestedComments });
+    } catch (err) {
+        console.error("Error fetching comments:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch comments" });
+    }
+});
+
+// DELETE: Delete Comment
+async function deleteCommentWithReplies(commentID) {
+    const replies = await Comment.find({ parentID: commentID });
+    for (const reply of replies) {
+      await deleteCommentWithReplies(reply._id);
+    }
+    await Comment.findByIdAndDelete(commentID);
+  }
+  
+  async function userOwnsPost(postID, userID) {
+    const [rows] = await db.promise().query('SELECT userID FROM posts WHERE postID = ?', [postID]);
+    return rows.length > 0 && String(rows[0].userID) === String(userID);
+  }
+  
+  app.delete('/WanderScript/comments/delete/:id', async (req, res) => {
+    try {
+      const commentID = req.params.id;
+      const comment = await Comment.findById(commentID);
+      if (!comment) return res.status(404).json({ success: false, message: 'Comment not found' });
+  
+      console.log("Comment to delete:", comment);
+  
+      const userID = req.session.user.id;
+      const postID = comment.postID;
+  
+      const ownsPost = await userOwnsPost(postID, userID);
+  
+      console.log("Comment.userID:", comment.userID);
+      console.log("Session userID:", userID);
+      console.log("Owns post:", ownsPost);
+  
+      if (
+        String(comment.userID) !== String(userID) &&
+        !ownsPost
+      ) {
+        return res.status(403).json({ success: false, message: 'Unauthorized' });
+      }
+  
+      await deleteCommentWithReplies(commentID);
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+      res.status(500).json({ success: false });
+    }
+  });
+
+//Post comments
+app.post('/WanderScript/comments/delete/:id', async (req, res) => {
+    try {
+      const commentID = req.params.id;
+      const comment = await Comment.findById(commentID);
+  
+      if (!comment) {
+        return res.status(404).json({ success: false, message: 'Comment not found' });
+      }
+  
+      const isCommentOwner = String(comment.userID) === String(req.session.user.id);
+      const isPostOwner = await userOwnsPost(comment.postID, req.session.user.id);
+  
+      if (!isCommentOwner && !isPostOwner) {
+        return res.status(403).json({ success: false, message: 'Unauthorized' });
+      }
+  
+      await deleteCommentWithReplies(commentID);
+  
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+      res.status(500).json({ success: false });
+    }
+  });
+
+app.use((req, res) => {
+    res.status(404).render('pageNotFound', {
+        user: req.session.user || null
+    });
+});
+
+app.listen(port, () => {
+    console.log(`WanderScript running on http://localhost:${port}`);
+});
 
 // db.query('select *from users;', (req, res) => {
 //     console.log(res);
