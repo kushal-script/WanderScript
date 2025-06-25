@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderScript - Loading</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #111;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      position: relative;
+      transition: opacity 0.2s ease;
+    }
+
+    body.fade-out {
+      opacity: 0;
+    }
+
+    .app-logo {
+      display: flex;
+      gap: 2px;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #00f0ff;
+      text-shadow: 0 0 8px #00f0ffcc;
+      z-index: 2;
+    }
+
+    .app-logo span {
+      display: inline-block;
+      transform: translateY(0);
+    }
+
+    @keyframes jump {
+      0% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-12px);
+      }
+
+      60% {
+        transform: translateY(4px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    .loading-bar-container {
+      width: 280px;
+      height: 6px;
+      background: #222;
+      border-radius: 4px;
+      margin-top: 20px;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00f0ff, #00bfff);
+      animation: fillBar 2.4s ease forwards;
+    }
+
+    @keyframes fillBar {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    .background-dots {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .dot {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #00f0ff44;
+      animation: floatUp 5s linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0);
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-logo" id="logo">
+    <span>W</span><span>a</span><span>n</span><span>d</span><span>e</span><span>r</span>
+    <span>S</span><span>c</span><span>r</span><span>i</span><span>p</span><span>t</span>
+  </div>
+
+  <div class="loading-bar-container">
+    <div class="loading-bar" id="bar"></div>
+  </div>
+
+  <div class="background-dots" id="bg-dots"></div>
+
+  <script>
+    // Background floating dots
+    const dotContainer = document.getElementById('bg-dots');
+    for (let i = 0; i < 40; i++) {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      dot.style.left = `${Math.random() * 100}%`;
+      dot.style.bottom = `${Math.random() * 100}px`;
+      dot.style.animationDuration = `${3 + Math.random() * 3}s`;
+      dotContainer.appendChild(dot);
+    }
+
+    // Animate letter jumps in sync with loading bar
+    const letters = document.querySelectorAll('#logo span');
+    letters.forEach((span, i) => {
+      setTimeout(() => {
+        span.style.animation = 'jump 0.6s ease';
+      }, 200 + i * 120);
+    });
+
+    // Fade out at 2.4s and redirect at 2.6s
+    setTimeout(() => {
+      document.body.classList.add('fade-out');
+    }, 2400);
+
+    setTimeout(() => {
+      window.location.href = '/WanderScript/profile';
+    }, 2600);
+  </script>
+</body>
+
+</html>
