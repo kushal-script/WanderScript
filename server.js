@@ -13,9 +13,11 @@ const validator = require('validator');
 const mongoose = require('mongoose');
 const Comment = require('./models/Comment');
 const Message = require('./models/Message');
+const multer = require('multer');
+const upload = multer();
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 const port = process.env.PORT;
 const saltRounds = 10;
@@ -105,18 +107,18 @@ app.get('/WanderScript/verify-otp', (req, res) => {
 });
 
 //Post verify otp
-app.post('/WanderScript/verify-otp', (req, res) => {
+app.post('/WanderScript/verify-otp', upload.none(), (req, res) => {
     const { verifyRequest, OTPrequest } = req.body;
     if (verifyRequest) {
         otpVerification(req, res);
-    }
-    if (OTPrequest) {
+    } else if (OTPrequest) {
         sendOtp(req, res);
+    } else {
+        res.status(400).send('Bad Request: Missing parameters.');
     }
-
 });
 
-// OTP Verification Function
+// OTP Verification 
 function otpVerification(req, res) {
     try {
         const { userOtp, email, username } = req.body;
@@ -154,12 +156,10 @@ function otpVerification(req, res) {
             const { userID, otp: dbOtp, otp_expiry: expiry } = results[0];
 
             if (userOtp == dbOtp && Date.now() < expiry) {
-                // Set session user to mark user as authenticated
                 req.session.user = {
                     id: userID,
                     email: email,
                     username: username
-                    // If you want to also fetch and include userID, you can do a query above for it
                 };
                 return res.redirect('/WanderScript/loading');
             } else {
@@ -179,15 +179,18 @@ function otpVerification(req, res) {
             messageType: 'error'
         });
     }
-
 }
 
 // Send OTP Function
 function sendOtp(req, res) {
     try {
         const { email, username } = req.body;
+        const isAjax = req.xhr || req.headers.accept.indexOf('json') > -1;
 
         if (!email || !username) {
+            if (isAjax) {
+                return res.status(400).json({ success: false, message: 'Email and username are required.' });
+            }
             return res.render('otpVerification.ejs', {
                 mailID: email,
                 username: username,
@@ -197,12 +200,16 @@ function sendOtp(req, res) {
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000);
+        // OTP valid for 5 minutes (300,000 ms)
         const expiry = Date.now() + 5 * 60 * 1000;
 
         const updateQuery = 'UPDATE users SET otp = ?, otp_expiry = ? WHERE mailID = ? AND username = ?';
         db.query(updateQuery, [otp, expiry, email, username], (err, result) => {
             if (err) {
                 console.error("Database error:", err);
+                if (isAjax) {
+                    return res.status(500).json({ success: false, message: 'Failed to update OTP in database.' });
+                }
                 return res.render('otpVerification.ejs', {
                     mailID: email,
                     username: username,
@@ -212,6 +219,9 @@ function sendOtp(req, res) {
             }
 
             if (result.affectedRows === 0) {
+                if (isAjax) {
+                    return res.status(404).json({ success: false, message: 'No user found with that email or username.' });
+                }
                 return res.render('otpVerification.ejs', {
                     mailID: email,
                     username: username,
@@ -224,10 +234,13 @@ function sendOtp(req, res) {
                 from: 'kushal0042@gmail.com',
                 to: email,
                 subject: 'Your WanderScript OTP',
-                text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+                text: `Your OTP is ${otp}. It is valid for 5 minutes. You can request for another otp after a minute.`,
             }, (error, info) => {
                 if (error) {
                     console.error('Error sending email:', error);
+                    if (isAjax) {
+                        return res.status(500).json({ success: false, message: 'Failed to send OTP email.' });
+                    }
                     return res.render('otpVerification.ejs', {
                         mailID: email,
                         username: username,
@@ -237,6 +250,9 @@ function sendOtp(req, res) {
                 }
 
                 console.log('Email sent:', info.response);
+                if (isAjax) {
+                    return res.status(200).json({ success: true, message: 'New OTP sent successfully!', otpExpiry: expiry });
+                }
                 return res.render('otpVerification.ejs', {
                     mailID: email,
                     username: username,
@@ -248,13 +264,12 @@ function sendOtp(req, res) {
         });
     } catch (error) {
         console.error("Error in sending OTP:", error);
-        return res.render('otpVerification.ejs', {
+        return res.status(500).render('otpVerification.ejs', {
             mailID: null,
             message: 'An error occurred while sending the OTP.',
             messageType: 'error'
         });
     }
-
 }
 
 // POST Sign Up

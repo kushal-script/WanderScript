@@ -6,6 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OTP verification - WanderScript</title>
   <link rel="stylesheet" href="/css/otpVerification.css">
+  <style>
+    .secondary-btn:disabled,
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #222;
+      border-color: #444;
+      color: #888;
+      box-shadow: none;
+      transform: none;
+    }
+
+    #timerDisplay {
+      font-size: 0.7rem;
+      color: #ccc;
+    }
+  </style>
 </head>
 
 <body>
@@ -36,8 +53,8 @@
         </form>
 
         <div id="timerSection" style="<%= typeof otpExpiry !== 'undefined' ? 'display:block;' : 'display:none;' %>">
-          <p id="timer" style="margin-bottom: 0.5rem;"></p>
-          <form method="post" action="/WanderScript/verify-otp">
+          <p id="timerDisplay" style="color: #ccc; margin-bottom: 10px;">You can request another OTP in 01:00</p>
+          <form id="resendForm" method="post" action="/WanderScript/verify-otp" onsubmit="handleResend(event)">
             <input type="hidden" name="OTPrequest" value="1">
             <input type="hidden" name="email" value="<%= mailID || '' %>">
             <input type="hidden" name="username" value="<%= username || '' %>">
@@ -51,55 +68,78 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-          const emailInput = document.getElementById('email');
+          // Combine email validation and timer logic into one block
+          const emailInput = document.getElementById('visibleEmail'); // Correct ID for the visible email input
           const emailError = document.getElementById('email-error');
           const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-
-          emailInput.addEventListener('input', () => {
-            const value = emailInput.value;
-            if (value === "") {
-              emailError.textContent = "";
-            } else if (!emailPattern.test(value)) {
-              emailError.textContent = "Enter a valid email address";
-            } else {
-              emailError.textContent = "";
-            }
-          });
-        </script>
-        <script>
-          const emailInput = document.getElementById('visibleEmail');
-          const emailError = document.getElementById('email-error');
-          const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-
+        
           if (emailInput) {
             emailInput.addEventListener('input', () => {
               const value = emailInput.value;
-              const isValid = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(value);
+              const isValid = emailPattern.test(value);
               emailError.textContent = !isValid && value !== "" ? "Enter a valid email address" : "";
             });
           }
         
-          <% if (typeof otpExpiry !== 'undefined') { %>
-            const expiryTime = <%= otpExpiry %>;
-            const timerElement = document.getElementById('timer');
-            const resendBtn = document.getElementById('resendBtn');
-
-            function updateTimer() {
-              const secondsLeft = Math.floor((expiryTime - Date.now()) / 1000);
-              if (secondsLeft > 0) {
-                const min = Math.floor(secondsLeft / 60);
-                const sec = secondsLeft % 60;
-                timerElement.textContent = `OTP expires in ${min}:${sec < 10 ? '0' + sec : sec}`;
+          const resendBtn = document.getElementById("resendBtn");
+          const timerDisplay = document.getElementById("timerDisplay");
+          let timerInterval;
+        
+          function formatTime(seconds) {
+            const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            return `${mins}:${secs}`;
+          }
+        
+          function startCountdown(duration = 60) {
+            clearInterval(timerInterval);
+            let timeLeft = duration;
+        
+            resendBtn.disabled = true;
+            timerDisplay.textContent = `You can resend OTP in ${formatTime(timeLeft)}`;
+        
+            timerInterval = setInterval(() => {
+              timeLeft--;
+              if (timeLeft > 0) {
+                timerDisplay.textContent = `You can request for another OTP in ${formatTime(timeLeft)}`;
               } else {
-                timerElement.textContent = "OTP expired.";
+                clearInterval(timerInterval);
                 resendBtn.disabled = false;
-                clearInterval(interval);
+                timerDisplay.textContent = "You can now request for another OTP."; // Changed text for clarity
               }
+            }, 1000);
+          }
+        
+          function handleResend(event) {
+            event.preventDefault();
+            const form = document.getElementById("resendForm");
+            const formData = new FormData(form);
+        
+            fetch(form.action, {
+              method: 'POST',
+              body: formData
+            }).then(() => {
+              startCountdown();
+            }).catch((err) => {
+              console.error("Failed to resend OTP:", err);
+              // Optionally, provide user feedback on failure
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Failed to resend OTP. Please try again!',
+              });
+            });
+          }
+        
+          // Ensure this runs after all elements are available in the DOM
+          window.addEventListener("DOMContentLoaded", () => {
+            const verifyForm = document.getElementById('verifyForm');
+            // Check if verifyForm exists AND is visible.
+            // The `display` style is set by your EJS template logic.
+            if (verifyForm && window.getComputedStyle(verifyForm).display !== 'none') {
+              startCountdown();
             }
-
-            let interval = setInterval(updateTimer, 1000);
-            updateTimer();
-          <% } %>
+          });
         </script>
         <%-include('includes/alert')%>
 
