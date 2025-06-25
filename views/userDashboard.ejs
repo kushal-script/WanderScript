@@ -54,7 +54,7 @@
             cursor: pointer;
         }
 
-        .action-buttons button .delete{
+        .action-buttons button .delete {
             filter: none;
             height: 24px;
             width: 24px;
@@ -74,11 +74,11 @@
             <h2>Dashboard</h2>
             <div class="action-buttons">
                 <button onclick="logout()">
-                    <img src="/assets/icons8-logout-30.png" alt="logout" class="logout"/>
+                    <img src="/assets/icons8-logout-30.png" alt="logout" class="logout" />
                     Logout
                 </button>
                 <button onclick="confirmDelete()">
-                    <img src="/assets/icons8-delete-user-data-48.png" alt="delete account" class="delete"/>
+                    <img src="/assets/icons8-delete-user-data-48.png" alt="delete account" class="delete" />
                     Delete Account
                 </button>
             </div>
@@ -126,7 +126,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch('/WanderScript/logout', { method: 'POST' })
-                        .then(() => window.location.href = '/WanderScript/signin');
+                        .then(() => window.location.href = '/WanderScript/transition-logout');
                 }
             });
         }
@@ -142,7 +142,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch('/WanderScript/delete-account', { method: 'DELETE' })
-                        .then(() => window.location.href = '/WanderScript/signin');
+                        .then(() => window.location.href = '/WanderScript/transition-delete');
                 }
             });
         }

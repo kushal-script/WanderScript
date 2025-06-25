@@ -98,7 +98,7 @@ app.get('/WanderScript/verify-otp', (req, res) => {
     res.render('otpVerification.ejs', {
         message: req.query.message || null,
         messageType: req.query.info,
-        mailID: null, 
+        mailID: null,
         username: null
     });
 
@@ -131,7 +131,7 @@ function otpVerification(req, res) {
         if (!validator.isEmail(email)) {
             return res.redirect('/WanderScript/verify-otp?message=' + encodeURIComponent('Invalid email format.'));
         }
-        const query = 'SELECT otp, otp_expiry FROM users WHERE mailID = ? AND username = ?';
+        const query = 'SELECT userID, otp, otp_expiry FROM users WHERE mailID = ? AND username = ?';
         db.query(query, [email, username], (err, results) => {
             if (err) {
                 console.error("Database error during OTP verification:", err);
@@ -151,12 +151,12 @@ function otpVerification(req, res) {
                 });
             }
 
-            const dbOtp = results[0].otp;
-            const expiry = results[0].otp_expiry;
+            const { userID, otp: dbOtp, otp_expiry: expiry } = results[0];
 
             if (userOtp == dbOtp && Date.now() < expiry) {
                 // Set session user to mark user as authenticated
                 req.session.user = {
+                    id: userID,
                     email: email,
                     username: username
                     // If you want to also fetch and include userID, you can do a query above for it
@@ -319,7 +319,26 @@ app.post('/WanderScript/signin', (req, res) => {
 //loading page
 app.get('/WanderScript/loading', (req, res) => {
     if (!req.session.user) return res.redirect('/WanderScript/signin');
-    res.render('loading'); // Render loading.ejs
+    res.render('loading', {
+        redirectTo: '/WanderScript/profile',
+        tagline: 'let the blogging begin !!'
+    }); // Render loading.ejs
+});
+
+// Temporary redirect route for logout
+app.get('/WanderScript/transition-logout', (req, res) => {
+    res.render('loading', {
+        redirectTo: '/WanderScript/signin',
+        tagline: ''
+    });
+});
+
+// Temporary redirect route for account deletion
+app.get('/WanderScript/transition-delete', (req, res) => {
+    res.render('loading', {
+        redirectTo: '/WanderScript/signin',
+        tagline: ''
+    });
 });
 
 //POST password reset
@@ -1021,7 +1040,6 @@ app.post('/WanderScript/logout', (req, res) => {
     req.session.destroy(() => {
         res.status(200).json({ success: true });
     });
-
 });
 
 //delete account
