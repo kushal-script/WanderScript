@@ -179,11 +179,13 @@
                     </span>
                 </a>
 
-                <a href="/WanderScript" class="action-btn dashboard">
-                    <span class="icon-text">
+                <% if (user._id !== currentUser._id) { %>
+                    <a href="/WanderScript/messages/<%= user._id %>" class="action-btn dashboard">
+                      <span class="icon-text">
                         <img src="/assets/icons8-message-50.png" alt="message"> Message
-                    </span>
-                </a>
+                      </span>
+                    </a>
+                  <% } %>
             </div>
         </div>
 

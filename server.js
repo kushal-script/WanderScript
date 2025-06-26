@@ -1204,205 +1204,218 @@ app.post('/WanderScript/comments/delete/:id', async (req, res) => {
 // GET /messages - show all chats
 app.get('/WanderScript/messages', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
-  const currentUserID = req.session.user.id;
+    const currentUserID = req.session.user.id;
 
-  // Find all unique users who sent/received messages
-  const messages = await Message.find({
-    $or: [{ senderID: currentUserID }, { receiverID: currentUserID }]
-  });
+    // Fetch all threads where current user is a participant
+    const threads = await Message.find({ participants: currentUserID }).sort({ lastMessageTime: -1 });
 
-  const userMap = new Map();
+    const chats = [];
 
-  for (let msg of messages) {
-    const otherUserID = msg.senderID === currentUserID ? msg.receiverID : msg.senderID;
-    if (!userMap.has(otherUserID)) {
-      const [rows] = await db.query('SELECT username FROM users WHERE userID = ?', [otherUserID]);
-      if (rows[0]) {
-        userMap.set(otherUserID, {
-          userID: otherUserID,
-          username: rows[0].username
-        });
-      }
+    for (let thread of threads) {
+        const otherUserID = thread.participants.find(id => id !== currentUserID);
+        const [rows] = await db.promise().query('SELECT username FROM users WHERE userID = ?', [otherUserID]);
+
+        if (rows.length) {
+            chats.push({
+                userID: otherUserID,
+                username: rows[0].username,
+                threadID: thread._id
+            });
+        }
     }
-  }
 
-  const chats = Array.from(userMap.values());
-
-  res.render('messageList', { user: req.session.user, chats });
+    res.render('messageList', {
+        user: req.session.user,
+        chats
+    });
 });
 
 
 // POST /messages/mark-read/:userID
 app.post('/WanderScript/messages/mark-read/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
-  const currentUserID = req.session.user.id;
-  const otherID = req.params.userID;
+    const currentUserID = req.session.user.id;
+    const otherID = req.params.userID;
 
-  await Message.updateMany(
-    { senderID: otherID, receiverID: currentUserID },
-    { $set: { isRead: true } }
-  );
+    await Message.updateMany(
+        { senderID: otherID, receiverID: currentUserID },
+        { $set: { isRead: true } }
+    );
 
-  res.sendStatus(200);
+    res.sendStatus(200);
 });
 
 // POST /messages/mark-unread/:userID
 app.post('/WanderScript/messages/mark-unread/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
-  const currentUserID = req.session.user.id;
-  const otherID = req.params.userID;
+    const currentUserID = req.session.user.id;
+    const otherID = req.params.userID;
 
-  await Message.updateMany(
-    { senderID: otherID, receiverID: currentUserID },
-    { $set: { isRead: false } }
-  );
+    await Message.updateMany(
+        { senderID: otherID, receiverID: currentUserID },
+        { $set: { isRead: false } }
+    );
 
-  res.sendStatus(200);
+    res.sendStatus(200);
 });
 
 // DELETE /messages/delete/:userID
 app.delete('/WanderScript/messages/delete/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
-  const currentUserID = req.session.user.id;
-  const otherID = req.params.userID;
+    const currentUserID = req.session.user.id;
+    const otherID = req.params.userID;
 
-  await Message.deleteMany({
-    $or: [
-      { senderID: currentUserID, receiverID: otherID },
-      { senderID: otherID, receiverID: currentUserID }
-    ]
-  });
+    await Message.deleteMany({
+        $or: [
+            { senderID: currentUserID, receiverID: otherID },
+            { senderID: otherID, receiverID: currentUserID }
+        ]
+    });
 
-  res.sendStatus(200);
+    res.sendStatus(200);
 });
 
 // GET /messages/:userID - chat with a specific user (setup only)
 app.get('/WanderScript/messages/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
-  
+
     const currentUserID = req.session.user.id;
     const otherUserID = req.params.userID;
-  
-    const [rows] = await db.query('SELECT username FROM users WHERE userID = ?', [otherUserID]);
+
+    const [rows] = await db.promise().query('SELECT username FROM users WHERE userID = ?', [otherUserID]);
     if (!rows[0]) return res.status(404).send("User not found");
-  
+
     const otherUser = {
-      userID: otherUserID,
-      username: rows[0].username
+        userID: otherUserID,
+        username: rows[0].username
     };
-  
-    const messages = await Message.find({
-      $or: [
-        { senderID: currentUserID, receiverID: otherUserID },
-        { senderID: otherUserID, receiverID: currentUserID }
-      ]
-    })
-    .populate('replyTo')
-    .sort({ createdAt: 1 });
-  
-    res.render('individualChat', {
-      user: req.session.user,
-      otherUser,
-      threadID: otherUserID, // using receiver ID as thread
-      messages
+
+    // 1. Get the thread
+    const thread = await Message.findOne({
+        participants: { $all: [currentUserID, otherUserID] }
     });
-  });
+
+    // 2. If no thread, show empty messages
+    let messages = [];
+    let threadID = null;
+
+    if (thread) {
+        threadID = thread._id;
+
+        messages = await Chats.find({ threadID })
+            .populate('replyTo')
+            .sort({ createdAt: 1 });
+
+        // 3. Mark current user's unread flag as read
+        if (thread.unreadBy.includes(currentUserID)) {
+            thread.unreadBy = thread.unreadBy.filter(id => id !== currentUserID);
+            await thread.save();
+        }
+    }
+
+    res.render('messageIndividual', {
+        user: req.session.user,
+        otherUser,
+        threadID, // using receiver ID as thread
+        messages
+    });
+});
 
 //send message
 app.post('/WanderScript/messages/:userID/send', async (req, res) => {
-  if (!req.session.user) return res.status(401).send('Unauthorized');
+    if (!req.session.user) return res.status(401).send('Unauthorized');
 
-  const senderID = req.session.user.id;
-  const receiverID = req.params.userID;
-  const content = req.body.content?.trim();
-  const replyTo = req.body.replyTo || null;
+    const senderID = req.session.user.id;
+    const receiverID = req.params.userID;
+    const content = req.body.content?.trim();
+    const replyTo = req.body.replyTo || null;
 
-  if (!content) return res.status(400).send('Message content is required');
+    if (!content) return res.status(400).send('Message content is required');
 
-  // 1. Find or create thread
-  let thread = await MessageThread.findOne({ participants: { $all: [senderID, receiverID] } });
+    // 1. Find or create thread
+    let thread = await Message.findOne({ participants: { $all: [senderID, receiverID] } });
 
-  if (!thread) {
-    thread = await MessageThread.create({
-      participants: [senderID, receiverID],
-      lastMessage: content,
-      lastMessageTime: new Date(),
-      unreadBy: [receiverID]
-    });
-  } else {
-    // 2. Update thread metadata
-    thread.lastMessage = content;
-    thread.lastMessageTime = new Date();
-    if (!thread.unreadBy.includes(receiverID)) {
-      thread.unreadBy.push(receiverID);
+    if (!thread) {
+        thread = await Message.create({
+            participants: [senderID, receiverID],
+            lastMessage: content,
+            lastMessageTime: new Date(),
+            unreadBy: [receiverID]
+        });
+    } else {
+        // 2. Update thread metadata
+        thread.lastMessage = content;
+        thread.lastMessageTime = new Date();
+        if (!thread.unreadBy.includes(receiverID)) {
+            thread.unreadBy.push(receiverID);
+        }
+        await thread.save();
     }
-    await thread.save();
-  }
 
-  // 3. Create message
-  const newMessage = new ChatMessage({
-    threadID: thread._id,
-    senderID,
-    receiverID,
-    content,
-    replyTo: replyTo || null
-  });
+    // 3. Create message
+    const newMessage = new Chats({
+        threadID: thread._id,
+        senderID,
+        receiverID,
+        content,
+        replyTo: replyTo || null
+    });
 
-  await newMessage.save();
+    await newMessage.save();
 
-  res.redirect(`/WanderScript/messages/${receiverID}`);
+    res.redirect(`/WanderScript/messages/${receiverID}`);
 });
 
 //edit message
 app.patch('/WanderScript/messages/:msgID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false, message: 'Unauthorized' });
-  
+
     const currentUserID = req.session.user.id;
     const { msgID } = req.params;
     const { content } = req.body;
-  
-    const message = await ChatMessage.findById(msgID);
+
+    const message = await Chats.findById(msgID);
     if (!message) return res.status(404).json({ success: false, message: 'Message not found' });
-  
+
     if (message.senderID !== currentUserID) {
-      return res.status(403).json({ success: false, message: 'You can only edit your own message' });
+        return res.status(403).json({ success: false, message: 'You can only edit your own message' });
     }
-  
+
     const hoursElapsed = (Date.now() - new Date(message.createdAt)) / (1000 * 60 * 60);
     if (hoursElapsed > 1) {
-      return res.status(403).json({ success: false, message: 'Edit time expired' });
+        return res.status(403).json({ success: false, message: 'Edit time expired' });
     }
-  
+
     message.content = content;
     message.edited = true;
     await message.save();
-  
-    return res.json({ success: true, updated: message });
-  });
 
-  //delete message
-  app.delete('/WanderScript/messages/:msgID', async (req, res) => {
+    return res.json({ success: true, updated: message });
+});
+
+//delete message
+app.delete('/WanderScript/messages/:msgID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false, message: 'Unauthorized' });
-  
+
     const currentUserID = req.session.user.id;
     const { msgID } = req.params;
-  
-    const message = await ChatMessage.findById(msgID);
+
+    const message = await Chats.findById(msgID);
     if (!message) return res.status(404).json({ success: false, message: 'Message not found' });
-  
+
     if (message.senderID !== currentUserID) {
-      return res.status(403).json({ success: false, message: 'You can only delete your own message' });
+        return res.status(403).json({ success: false, message: 'You can only delete your own message' });
     }
-  
+
     const hoursElapsed = (Date.now() - new Date(message.createdAt)) / (1000 * 60 * 60);
     if (hoursElapsed > 1) {
-      return res.status(403).json({ success: false, message: 'Delete time expired' });
+        return res.status(403).json({ success: false, message: 'Delete time expired' });
     }
-  
-    await ChatMessage.findByIdAndDelete(msgID);
-  
+
+    await Chats.findByIdAndDelete(msgID);
+
     return res.json({ success: true, deletedID: msgID });
-  });
+});
 
 //messaging
 
