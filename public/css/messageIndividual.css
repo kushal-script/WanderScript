@@ -30,6 +30,44 @@ body {
   text-shadow: 0 0 4px #ffffff88;
 }
 
+/* Date Header */
+.date-header {
+  text-align: center;
+  margin: 1rem 0;
+  color: #00ffe7aa;
+  font-size: 0.85rem;
+  position: relative;
+}
+.date-header::before,
+.date-header::after {
+  content: '';
+  display: inline-block;
+  width: 40%;
+  height: 1px;
+  background: #00ffe722;
+  vertical-align: middle;
+  margin: 0 10px;
+}
+
+/* Timestamp outside the message bubble */
+.msg-time.outside {
+  font-size: 0.7rem;
+  color: #888;
+  margin-top: auto;
+  margin-bottom: 2px;
+  font-style: italic;
+}
+
+.msg-time.outside.left {
+  margin-right: 8px;
+  align-self: flex-end;
+}
+
+.msg-time.outside.right {
+  margin-left: 8px;
+  align-self: flex-end;
+}
+
 .nav-btn:hover {
   background-color: #ffffff22;
   box-shadow: 0 0 12px #ffffff99;

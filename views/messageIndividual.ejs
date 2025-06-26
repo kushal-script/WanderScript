@@ -19,49 +19,64 @@
             </nav>
 
             <div class="chat-box">
-                <% messages.forEach(msg=> { %>
-                    <% if (msg.senderID===currentUserID) { %>
-                        <div class="message-row me">
-                            <div class="message" id="message-<%= msg._id %>">
-                                <% if (msg.replyTo && msg.replyTo.content) { %>
-                                    <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
-                                <% } %>
-                                <span class="msg-content">
-                                    <%= msg.content %>
-                                </span>
-                                <div class="edit-container" style="display: none;">
-                                    <input type="text" class="edit-input" value="<%= msg.content %>" />
-                                    <div class="edit-actions">
-                                        <button onclick="submitEdit('<%= msg._id %>')">Save</button>
-                                     </div>
-                                </div>
-                                <% const now=new Date(); const diff=(now - new Date(msg.createdAt)) / (1000 * 60 * 60); %>
-                                <% if (diff < 1) { %>
-                                    <div class="msg-options">
-                                        <button class="msg-dropdown-btn">⋯</button>
-                                        <div class="msg-dropdown">
-                                            <button onclick="startEdit('<%= msg._id %>')">Edit</button>
-                                            <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
-                                        </div>
-                                    </div>
-                                <% } %>
-                                <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
-                            </div>
+                <% let lastDate = null; %>
+<% messages.forEach((msg, index) => { 
+    const msgDate = new Date(msg.createdAt).toLocaleDateString('en-IN', {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    const msgTime = new Date(msg.createdAt).toLocaleTimeString('en-IN', {
+        hour: '2-digit', minute: '2-digit'
+    });
+
+    const isMe = msg.senderID === currentUserID;
+%>
+
+    <% if (msgDate !== lastDate) { lastDate = msgDate; %>
+        <div class="date-header"><%= msgDate %></div>
+    <% } %>
+
+    <div class="message-row <%= isMe ? 'me' : 'other' %>">
+        <% if (isMe) { %>
+            <span class="msg-time outside left"><%= msgTime %></span>
+        <% } %>
+
+        <div class="message <%= !isMe ? 'dimmed' : '' %>" id="message-<%= msg._id %>">
+            <% if (msg.replyTo && msg.replyTo.content) { %>
+                <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
+            <% } %>
+
+            <span class="msg-content"><%= msg.content %></span>
+
+            <% if (isMe) { 
+                const now = new Date();
+                const diff = (now - new Date(msg.createdAt)) / (1000 * 60 * 60);
+                if (diff < 1) { %>
+                    <div class="msg-options">
+                        <button class="msg-dropdown-btn">⋯</button>
+                        <div class="msg-dropdown">
+                            <button onclick="startEdit('<%= msg._id %>')">Edit</button>
+                            <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
                         </div>
-                    <% } else { %>
-                        <div class="message-row other">
-                            <div class="message dimmed">
-                                <% if (msg.replyTo && msg.replyTo.content) { %>
-                                    <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
-                                <% } %>
-                                <span>
-                                    <%= msg.content %>
-                                </span>
-                                <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }) %>
+                    </div>
+            <%  } } %>
+
+            <div class="edit-container" style="display: none;">
+                <input type="text" class="edit-input" value="<%= msg.content %>" />
+                <div class="edit-actions">
+                    <button onclick="submitEdit('<%= msg._id %>')">Save</button>
+                </div>
+            </div>
+
+            <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
+        </div>
+
+        <% if (!isMe) { %>
+            <span class="msg-time outside right"><%= msgTime %></span>
+        <% } %>
+    </div>
+
+<% }); %>
             </div>
 
             <div id="reply-preview" class="reply-preview" style="display: none;">

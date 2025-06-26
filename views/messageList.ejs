@@ -18,7 +18,7 @@
     <h2 class="messages-heading">Messages</h2>
 
     <% chats.forEach(chat => { %>
-      <div class="chat-box" onclick="window.location.href='/WanderScript/messages/<%= chat.userID %>'">
+      <div class="chat-box" data-userid="<%= chat.userID %>">
         <div class="chat-left">
           @<%= chat.username %>
         </div>
@@ -56,6 +56,39 @@
           .then(() => location.reload());
       }
     }
+
+    // Navigate only when not clicking dropdown
+  document.querySelectorAll('.chat-box').forEach(box => {
+    box.addEventListener('click', e => {
+      if (!e.target.closest('.dropdown')) {
+        const userID = box.getAttribute('data-userid');
+        window.location.href = `/WanderScript/messages/${userID}`;
+      }
+    });
+  });
+
+  function markAsRead(e, userID) {
+    e.stopPropagation();
+    fetch(`/WanderScript/messages/mark-read/${userID}`, { method: 'POST' })
+      .then(() => location.reload());
+  }
+
+  function markAsUnread(e, userID) {
+    e.stopPropagation();
+    fetch(`/WanderScript/messages/mark-unread/${userID}`, { method: 'POST' })
+      .then(() => location.reload());
+  }
+
+  function deleteChat(e, userID) {
+    e.stopPropagation();
+    if (confirm("Are you sure you want to delete this chat?")) {
+      fetch(`/WanderScript/messages/delete/${userID}`, { method: 'DELETE' })
+        .then(res => {
+          if (res.ok) location.reload();
+          else alert("Failed to delete chat");
+        });
+    }
+  }
   </script>
 </body>
 </html>

@@ -62,7 +62,7 @@ body {
 }
 
 .username:hover {
-    box-shadow: 0 0 10px #00f0ff55;
+    box-shadow: 0 0 6px #00eeff36;
     background: linear-gradient(to right, #00f0ff55, #8e00ff55);
 }
 
@@ -98,7 +98,7 @@ body {
 
 .chat-box:hover {
     background: #1f1f1f;
-    box-shadow: 0 0 12px #00f0ff99;
+    box-shadow: 0 0 6px #00eeff41;
 }
 
 .chat-left {
@@ -125,28 +125,42 @@ body {
     right: 0;
     top: 1.8rem;
     background-color: #222;
-    border: 1px solid #00f0ff88;
+    border: 1px solid #00eeff2f;
     border-radius: 8px;
-    box-shadow: 0 0 10px #00f0ff55;
+    box-shadow: 0 0 10px #00eeff1f;
     z-index: 1000;
     padding: 0.5rem 0;
 }
 
 .dropdown-content button {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* keeps text neatly spaced if you add icons later */
     width: 100%;
     padding: 0.6rem 1rem;
-    background: none;
+    background-color: #1c1c1c;
     border: none;
     color: #00f0ff;
-    text-align: left;
+    text-align: center;
     cursor: pointer;
-    font-size: 0.95rem;
-    transition: background 0.2s ease;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Prevent line breaks */
+    margin-bottom: 6px;
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown-content button:last-child {
+    margin-bottom: 0;
 }
 
 .dropdown-content button:hover {
-    background-color: #00f0ff11;
+    background-color: #00f0ff22;
+    transform: scale(1.02);
+}
+
+.dropdown-content button:not(:last-child) {
+    border-bottom: 1px solid #00f0ff22;
 }
 
 .dropdown:hover .dropdown-content {
