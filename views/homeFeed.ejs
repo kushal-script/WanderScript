@@ -7,7 +7,6 @@
     <title>WanderScript - Home Feed</title>
     <link rel="stylesheet" href="/css/homeFeed.css" />
     <style>
-        /* Your existing styles */
         .read-toggle-btn {
             background: none;
             border: none;
@@ -129,23 +128,21 @@
             color: #00ffff;
         }
 
-        /* --- NEW STYLES FOR UNREAD DOT --- */
         .message-btn-wrapper {
-            position: relative; /* Needed for positioning the dot */
-            display: inline-block; /* To contain the dot */
+            position: relative;
+            display: inline-block; 
         }
 
         .unread-dot {
             position: absolute;
-            top: 0px; /* Adjust as needed */
-            right: 0px; /* Adjust as needed */
-            width: 10px;
-            height: 10px;
+            top: 0px; 
+            right: 0px; 
+            width: 12.5px;
+            height: 12.5px;
             background-color: red;
             border-radius: 50%;
-            border: 1px solid #1a1a1a; /* To stand out against button/background */
+            border: 1px solid #1a1a1a; 
         }
-        /* --- END NEW STYLES --- */
     </style>
 </head>
 
