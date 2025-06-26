@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with @<%= otherUser.username %> - WanderScript</title>
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+
+<body>
+    <nav class="chat-nav">
+        <a href="javascript:history.back()" class="nav-btn">← Back</a>
+        <a href="/profile/<%= otherUser.username %>" class="nav-user">@<%= otherUser.username %></a>
+        <div class="nav-phone">
+            <i class="phone-icon">📞</i>
+        </div>
+    </nav>
+
+    <div class="chat-box">
+        <% messages.forEach(msg=> { %>
+            <% if (msg.senderID===user.userID) { %>
+                <div class="message-row me">
+                    <div class="message">
+                        <% if (msg.replyTo && msg.replyTo.content) { %>
+                            <div class="reply-reference">
+                                Replying to: "<%= msg.replyTo.content %>"
+                            </div>
+                            <% } %>
+                                <span>
+                                    <%= msg.content %>
+                                </span>
+
+                                <% const now=new Date(); const diff=(now - new Date(msg.createdAt)) / (1000 * 60 * 60);
+                                    %>
+                                    <% if (diff < 1) { %>
+                                        <div class="msg-options">
+                                            <button class="msg-dropdown-btn">⋯</button>
+                                            <div class="msg-dropdown">
+                                                <!-- Trigger edit with fetch (example only) -->
+                                                <button
+                                                    onclick="editMessage('<%= msg._id %>', '<%= msg.content %>')">Edit</button>
+
+                                                <!-- Trigger delete with fetch -->
+                                                <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
+
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                            <button class="reply-btn"
+                                                onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩
+                                                Reply</button>
+                    </div>
+                </div>
+                <% } else { %>
+                    <div class="message-row other">
+                        <div class="message dimmed">
+                            <% if (msg.replyTo && msg.replyTo.content) { %>
+                                <div class="reply-reference">
+                                    Replying to: "<%= msg.replyTo.content %>"
+                                </div>
+                                <% } %>
+                                    <span>
+                                        <%= msg.content %>
+                                    </span>
+                                    <button class="reply-btn"
+                                        onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
+                        </div>
+                    </div>
+                    <% } %>
+                        <% }) %>
+    </div>
+
+    <!-- Reply Preview Box -->
+    <div id="reply-preview" class="reply-preview" style="display: none;">
+        <span class="preview-text"></span>
+        <button type="button" onclick="cancelReply()">✖</button>
+    </div>
+
+    <!-- Message Form -->
+    <form class="chat-input" method="POST" action="/messages/<%= threadID %>/send">
+        <input type="hidden" name="replyTo" id="replyToInput" />
+        <input type="text" name="content" placeholder="Type a message..." required />
+        <button type="submit" class="send-icon">➤</button>
+    </form>
+
+    <!-- Dropdown + Reply Script -->
+    <script>
+        // Dropdown menu toggle
+        document.querySelectorAll('.msg-dropdown-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                e.stopPropagation();
+                button.nextElementSibling.classList.toggle('show');
+            });
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.msg-dropdown').forEach(d => d.classList.remove('show'));
+        });
+
+        // Reply logic
+        function setReply(messageID, content) {
+            const replyPreview = document.getElementById('reply-preview');
+            const replyInput = document.getElementById('replyToInput');
+            replyPreview.style.display = 'flex';
+            replyPreview.querySelector('.preview-text').innerText = content;
+            replyInput.value = messageID;
+        }
+
+        async function editMessage(msgID, oldContent) {
+            const newContent = prompt("Edit message:", oldContent);
+            if (!newContent || newContent.trim() === "") return;
+
+            const res = await fetch(`/WanderScript/messages/${msgID}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: newContent.trim() })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function deleteMessage(msgID) {
+            if (!confirm("Delete this message?")) return;
+
+            const res = await fetch(`/WanderScript/messages/${msgID}`, {
+                method: 'DELETE'
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        function cancelReply() {
+            document.getElementById('reply-preview').style.display = 'none';
+            document.getElementById('replyToInput').value = '';
+        }
+    </script>
+</body>
+
+</html>

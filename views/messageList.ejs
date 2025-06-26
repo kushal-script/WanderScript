@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages - WanderScript</title>
+  <link rel="stylesheet" href="/css/messageList.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/WanderScript/homefeed">
+      <img src="/assets/icons8-home-50.png" alt="Home">
+    </a>
+    <a href="/WanderScript/profile"><span class="username">@<%= user.username %></span></a>
+  </nav>
+
+  <div class="messages-wrapper">
+    <h2 class="messages-heading">Messages</h2>
+
+    <% chats.forEach(chat => { %>
+      <div class="chat-box" onclick="window.location.href='/WanderScript/messages/<%= chat.userID %>'">
+        <div class="chat-left">
+          @<%= chat.username %>
+        </div>
+        <div class="chat-right">
+          <div class="dropdown">
+            <button class="dropdown-btn">⋮</button>
+            <div class="dropdown-content">
+              <button onclick="markAsRead(event, '<%= chat.userID %>')">Mark as Read</button>
+              <button onclick="markAsUnread(event, '<%= chat.userID %>')">Mark as Unread</button>
+              <button onclick="deleteChat(event, '<%= chat.userID %>')">Delete Chat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <script>
+    function markAsRead(e, userID) {
+      e.stopPropagation();
+      fetch(`/WanderScript/messages/mark-read/${userID}`, { method: 'POST' })
+        .then(() => location.reload());
+    }
+
+    function markAsUnread(e, userID) {
+      e.stopPropagation();
+      fetch(`/WanderScript/messages/mark-unread/${userID}`, { method: 'POST' })
+        .then(() => location.reload());
+    }
+
+    function deleteChat(e, userID) {
+      e.stopPropagation();
+      if (confirm("Are you sure you want to delete this chat?")) {
+        fetch(`/WanderScript/messages/delete/${userID}`, { method: 'DELETE' })
+          .then(() => location.reload());
+      }
+    }
+  </script>
+</body>
+</html>
