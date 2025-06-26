@@ -1275,7 +1275,7 @@ app.delete('/WanderScript/messages/delete/:userID', async (req, res) => {
     res.sendStatus(200);
 });
 
-// GET /messages/:userID - chat with a specific user (setup only)
+// GET /messages/:userID - chat with a specific user 
 app.get('/WanderScript/messages/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
 
@@ -1316,7 +1316,9 @@ app.get('/WanderScript/messages/:userID', async (req, res) => {
     res.render('messageIndividual', {
         user: req.session.user,
         otherUser,
-        threadID, // using receiver ID as thread
+        currentUserID,
+        otherUserID,
+        threadID: otherUserID, // using receiver ID as thread
         messages
     });
 });

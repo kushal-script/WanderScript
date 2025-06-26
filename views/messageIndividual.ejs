@@ -1,119 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Chat with @<%= otherUser.username %> - WanderScript</title>
-  <link rel="stylesheet" href="/css/messageIndividual.css">
+    <meta charset="UTF-8">
+    <title>@<%= otherUser.username %> - WanderScript</title>
+    <link rel="stylesheet" href="/css/messageIndividual.css">
 </head>
 
 <body>
-  <div class="page-container"> <!-- Wrapper added -->
-
-    <nav class="chat-nav">
-      <a href="javascript:history.back()" class="nav-btn">← Back</a>
-      <a href="/profile/<%= otherUser.username %>" class="nav-user">@<%= otherUser.username %></a>
-      <div class="nav-phone">
-        <i class="phone-icon">📞</i>
-      </div>
-    </nav>
-
-    <div class="chat-box">
-      <% messages.forEach(msg => { %>
-        <% if (msg.senderID === user.userID) { %>
-          <div class="message-row me">
-            <div class="message">
-              <% if (msg.replyTo && msg.replyTo.content) { %>
-                <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
-              <% } %>
-              <span><%= msg.content %></span>
-
-              <% const now = new Date(); const diff = (now - new Date(msg.createdAt)) / (1000 * 60 * 60); %>
-              <% if (diff < 1) { %>
-                <div class="msg-options">
-                  <button class="msg-dropdown-btn">⋯</button>
-                  <div class="msg-dropdown">
-                    <button onclick="editMessage('<%= msg._id %>', '<%= msg.content %>')">Edit</button>
-                    <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
-                  </div>
+    <div class="page-container">
+        <div class="chat-card">
+            <nav class="chat-nav">
+                <a href="/WanderScript/messages" class="nav-btn">Messages</a>
+                <a href="/WanderScript/user/<%=otherUserID%>" class="nav-user">@<%= otherUser.username %></a>
+                <div class="nav-phone">
+                    <a href=""><img class="call" src="/assets/icons8-outgoing-call-50.png" alt="📞"></a>
                 </div>
-              <% } %>
-              <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
+            </nav>
+
+            <div class="chat-box">
+                <% messages.forEach(msg=> { %>
+                    <% if (msg.senderID===currentUserID) { %>
+                        <div class="message-row me">
+                            <div class="message" id="message-<%= msg._id %>">
+                                <% if (msg.replyTo && msg.replyTo.content) { %>
+                                    <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
+                                <% } %>
+                                <span class="msg-content">
+                                    <%= msg.content %>
+                                </span>
+                                <div class="edit-container" style="display: none;">
+                                    <input type="text" class="edit-input" value="<%= msg.content %>" />
+                                    <div class="edit-actions">
+                                        <button onclick="submitEdit('<%= msg._id %>')">Save</button>
+                                     </div>
+                                </div>
+                                <% const now=new Date(); const diff=(now - new Date(msg.createdAt)) / (1000 * 60 * 60); %>
+                                <% if (diff < 1) { %>
+                                    <div class="msg-options">
+                                        <button class="msg-dropdown-btn">⋯</button>
+                                        <div class="msg-dropdown">
+                                            <button onclick="startEdit('<%= msg._id %>')">Edit</button>
+                                            <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="message-row other">
+                            <div class="message dimmed">
+                                <% if (msg.replyTo && msg.replyTo.content) { %>
+                                    <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
+                                <% } %>
+                                <span>
+                                    <%= msg.content %>
+                                </span>
+                                <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
+                            </div>
+                        </div>
+                    <% } %>
+                <% }) %>
             </div>
-          </div>
-        <% } else { %>
-          <div class="message-row other">
-            <div class="message dimmed">
-              <% if (msg.replyTo && msg.replyTo.content) { %>
-                <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
-              <% } %>
-              <span><%= msg.content %></span>
-              <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
+
+            <div id="reply-preview" class="reply-preview" style="display: none;">
+                <span class="preview-text"></span>
+                <button type="button" onclick="cancelReply()">✖</button>
             </div>
-          </div>
-        <% } %>
-      <% }) %>
+
+            <form class="chat-input" method="POST" action="/WanderScript/messages/<%= otherUser.userID %>/send">
+                <input type="hidden" name="replyTo" id="replyToInput" />
+                <input type="text" name="content" placeholder="Type a message..." required />
+                <button type="submit" class="send-icon">➤</button>
+            </form>
+        </div>
     </div>
 
-    <div id="reply-preview" class="reply-preview" style="display: none;">
-      <span class="preview-text"></span>
-      <button type="button" onclick="cancelReply()">✖</button>
-    </div>
+    <script>
+        document.querySelectorAll('.msg-dropdown-btn').forEach(button => {
+            button.addEventListener('click', e => {
+                e.stopPropagation();
+                button.nextElementSibling.classList.toggle('show');
+            });
+        });
 
-    <form class="chat-input" method="POST" action="/WanderScript/messages/<%= otherUser.userID %>/send">
-      <input type="hidden" name="replyTo" id="replyToInput" />
-      <input type="text" name="content" placeholder="Type a message..." required />
-      <button type="submit" class="send-icon">➤</button>
-    </form>
-  </div>
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.msg-dropdown').forEach(d => d.classList.remove('show'));
+        });
 
-  <script>
-    document.querySelectorAll('.msg-dropdown-btn').forEach(button => {
-      button.addEventListener('click', e => {
-        e.stopPropagation();
-        button.nextElementSibling.classList.toggle('show');
-      });
-    });
+        function setReply(messageID, content) {
+            const replyPreview = document.getElementById('reply-preview');
+            const replyInput = document.getElementById('replyToInput');
+            replyPreview.style.display = 'flex';
+            replyPreview.querySelector('.preview-text').innerText = content;
+            replyInput.value = messageID;
+        }
 
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.msg-dropdown').forEach(d => d.classList.remove('show'));
-    });
+        async function deleteMessage(msgID) {
+            const res = await fetch(`/WanderScript/messages/${msgID}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) location.reload();
+            else alert(data.message);
+        }
 
-    function setReply(messageID, content) {
-      const replyPreview = document.getElementById('reply-preview');
-      const replyInput = document.getElementById('replyToInput');
-      replyPreview.style.display = 'flex';
-      replyPreview.querySelector('.preview-text').innerText = content;
-      replyInput.value = messageID;
-    }
+        function cancelReply() {
+            document.getElementById('reply-preview').style.display = 'none';
+            document.getElementById('replyToInput').value = '';
+        }
 
-    async function editMessage(msgID, oldContent) {
-      const newContent = prompt("Edit message:", oldContent);
-      if (!newContent || newContent.trim() === "") return;
+        function startEdit(msgID) {
+            const messageDiv = document.getElementById(`message-${msgID}`);
+            const msgText = messageDiv.querySelector('.msg-content');
+            const editContainer = messageDiv.querySelector('.edit-container');
 
-      const res = await fetch(`/WanderScript/messages/${msgID}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent.trim() })
-      });
+            msgText.style.display = 'none';
+            editContainer.style.display = 'flex';
 
-      const data = await res.json();
-      if (data.success) location.reload();
-      else alert(data.message);
-    }
+            // Hide the reply button if it exists within this message
+            const replyBtn = messageDiv.querySelector('.reply-btn');
+            if (replyBtn) {
+                replyBtn.style.display = 'none';
+            }
+        }
 
-    async function deleteMessage(msgID) {
-      if (!confirm("Delete this message?")) return;
+        async function submitEdit(msgID) {
+            const messageDiv = document.getElementById(`message-${msgID}`);
+            const input = messageDiv.querySelector('.edit-input');
+            const newContent = input.value.trim();
 
-      const res = await fetch(`/WanderScript/messages/${msgID}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) location.reload();
-      else alert(data.message);
-    }
+            if (!newContent) return alert("Message can't be empty.");
 
-    function cancelReply() {
-      document.getElementById('reply-preview').style.display = 'none';
-      document.getElementById('replyToInput').value = '';
-    }
-  </script>
+            const res = await fetch(`/WanderScript/messages/${msgID}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: newContent })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
 </body>
+
 </html>
