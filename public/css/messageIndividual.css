@@ -30,6 +30,12 @@ body {
   text-shadow: 0 0 4px #ffffff88;
 }
 
+.nav-btn img {
+  width: 18px;
+  height: 18px;
+  filter: grayscale(1) brightness(10);
+}
+
 /* Date Header */
 .date-header {
   text-align: center;
@@ -56,6 +62,25 @@ body {
   margin-top: auto;
   margin-bottom: 2px;
   font-style: italic;
+}
+
+.edited-badge {
+  font-size: 0.75em; 
+  color: #888; 
+  margin-left: 5px; 
+  vertical-align: bottom; 
+}
+
+.message {
+  position: relative; 
+}
+
+.seen-label {
+  text-align: right;
+  color: #00ffcc;
+  font-size: 13px;
+  margin-top: 10px;
+  margin-right: 10px;
 }
 
 .msg-time.outside.left {

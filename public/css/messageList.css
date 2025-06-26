@@ -119,6 +119,24 @@ body {
     cursor: pointer;
 }
 
+.unread-badge {
+    background-color: red;
+    color: white;
+    border-radius: 999px;
+    padding: 2px 6px;
+    font-size: 12px;
+    margin-left: 6px;
+  }
+  
+  .total-unread-badge {
+    background-color: red;
+    color: white;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 13px;
+    margin-left: 10px;
+  }
+
 .dropdown-content {
     display: none;
     position: absolute;

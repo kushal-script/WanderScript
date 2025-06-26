@@ -7,6 +7,7 @@
     <title>WanderScript - Home Feed</title>
     <link rel="stylesheet" href="/css/homeFeed.css" />
     <style>
+        /* Your existing styles */
         .read-toggle-btn {
             background: none;
             border: none;
@@ -127,6 +128,24 @@
             background-color: #00d4ff22;
             color: #00ffff;
         }
+
+        /* --- NEW STYLES FOR UNREAD DOT --- */
+        .message-btn-wrapper {
+            position: relative; /* Needed for positioning the dot */
+            display: inline-block; /* To contain the dot */
+        }
+
+        .unread-dot {
+            position: absolute;
+            top: 0px; /* Adjust as needed */
+            right: 0px; /* Adjust as needed */
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            border: 1px solid #1a1a1a; /* To stand out against button/background */
+        }
+        /* --- END NEW STYLES --- */
     </style>
 </head>
 
@@ -149,10 +168,14 @@
     <div class="profile-wrapper">
         <div class="feed-header">
             <h2 class="profile-username">🌐 Global Feed</h2>
-            <a href="/WanderScript/messages" class="message-btn">
-                <img src="/assets/icons8-message-50.png" alt="message" />
-                <span>Messages</span>
-            </a>
+            <div class="message-btn-wrapper"> <a href="/WanderScript/messages" class="message-btn">
+                    <img src="/assets/icons8-message-50.png" alt="message" />
+                    <span>Messages</span>
+                </a>
+                <% if (totalUnreadCount > 0) { %>
+                    <div class="unread-dot"></div>
+                <% } %>
+            </div>
         </div>
 
         <% allPosts.forEach(post=> {
@@ -179,21 +202,18 @@
 
                         <div class="post-footer">
 
-                            <!-- Posted By Info -->
                             <div class="user-posted">
                                 <img src="/assets/user_456212.png" alt="user" />
                                 <span>Posted by</span>
                                 <a href="/WanderScript/user/<%= post.userID %>">@<%= post.username %></a>
                             </div>
 
-                            <!-- 💬 Comment Toggle Button -->
                             <div class="comment-toggle-wrapper">
                                 <button class="read-toggle-btn comment-toggle" data-postid="<%= post.postID %>">
                                     💬 Comments
                                 </button>
                             </div>
 
-                            <!-- 🔽 Comments Section -->
                             <div class="comments-container hidden" id="comments-<%= post.postID %>">
                                 <form class="comment-form" data-postid="<%= post.postID %>">
                                     <textarea name="content" placeholder="Add a comment..." required></textarea>
@@ -203,7 +223,6 @@
                                 <div class="comments-list"></div>
                             </div>
 
-                            <!-- Upvote & Follow Buttons -->
                             <div class="post-actions">
                                 <button class="btn-edit upvote-btn" data-postid="<%= post.postID %>"
                                     data-isupvoted="<%= post.isUpvoted ? 'true' : 'false' %>">

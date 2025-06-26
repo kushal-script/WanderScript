@@ -11,7 +11,7 @@
     <div class="page-container">
         <div class="chat-card">
             <nav class="chat-nav">
-                <a href="/WanderScript/messages" class="nav-btn">Messages</a>
+                <a href="/WanderScript/messages" class="nav-btn"><img src="/assets/icons8-message-50.png" alt="message" />Messages</a>
                 <a href="/WanderScript/user/<%=otherUserID%>" class="nav-user">@<%= otherUser.username %></a>
                 <div class="nav-phone">
                     <a href=""><img class="call" src="/assets/icons8-outgoing-call-50.png" alt="📞"></a>
@@ -20,63 +20,87 @@
 
             <div class="chat-box">
                 <% let lastDate = null; %>
-<% messages.forEach((msg, index) => { 
-    const msgDate = new Date(msg.createdAt).toLocaleDateString('en-IN', {
-        year: 'numeric', month: 'long', day: 'numeric'
-    });
+                <% messages.forEach((msg, index) => {
+                    const msgDate = new Date(msg.createdAt).toLocaleDateString('en-IN', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
 
-    const msgTime = new Date(msg.createdAt).toLocaleTimeString('en-IN', {
-        hour: '2-digit', minute: '2-digit'
-    });
+                    const msgTime = new Date(msg.createdAt).toLocaleTimeString('en-IN', {
+                        hour: '2-digit', minute: '2-digit'
+                    });
 
-    const isMe = msg.senderID === currentUserID;
-%>
+                    const isMe = msg.senderID.toString() === currentUserID.toString(); // Ensure comparison is with strings
+                %>
 
-    <% if (msgDate !== lastDate) { lastDate = msgDate; %>
-        <div class="date-header"><%= msgDate %></div>
-    <% } %>
+                    <% if (msgDate !== lastDate) { lastDate = msgDate; %>
+                        <div class="date-header"><%= msgDate %></div>
+                    <% } %>
 
-    <div class="message-row <%= isMe ? 'me' : 'other' %>">
-        <% if (isMe) { %>
-            <span class="msg-time outside left"><%= msgTime %></span>
-        <% } %>
+                    <div class="message-row <%= isMe ? 'me' : 'other' %>">
+                        <% if (isMe) { %>
+                            <span class="msg-time outside left"><%= msgTime %></span>
+                        <% } %>
 
-        <div class="message <%= !isMe ? 'dimmed' : '' %>" id="message-<%= msg._id %>">
-            <% if (msg.replyTo && msg.replyTo.content) { %>
-                <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
-            <% } %>
+                        <div class="message <%= !isMe ? 'dimmed' : '' %>" id="message-<%= msg._id %>">
+                            <% if (msg.replyTo && msg.replyTo.content) { %>
+                                <div class="reply-reference">Replying to: "<%= msg.replyTo.content %>"</div>
+                            <% } %>
 
-            <span class="msg-content"><%= msg.content %></span>
+                            <span class="msg-content"><%= msg.content %></span>
+                            <% if (msg.edited) { %>
+                                <span class="edited-badge">(Edited)</span>
+                            <% } %>
 
-            <% if (isMe) { 
-                const now = new Date();
-                const diff = (now - new Date(msg.createdAt)) / (1000 * 60 * 60);
-                if (diff < 1) { %>
-                    <div class="msg-options">
-                        <button class="msg-dropdown-btn">⋯</button>
-                        <div class="msg-dropdown">
-                            <button onclick="startEdit('<%= msg._id %>')">Edit</button>
-                            <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
+
+                            <% if (isMe) {
+                                const now = new Date();
+                                const diff = (now - new Date(msg.createdAt)) / (1000 * 60 * 60);
+                                if (diff < 1) { %>
+                                    <div class="msg-options">
+                                        <button class="msg-dropdown-btn">⋯</button>
+                                        <div class="msg-dropdown">
+                                            <button onclick="startEdit('<%= msg._id %>')">Edit</button>
+                                            <button onclick="deleteMessage('<%= msg._id %>')">Delete</button>
+                                        </div>
+                                    </div>
+                            <%  } } %>
+
+                            <div class="edit-container" style="display: none;">
+                                <input type="text" class="edit-input" value="<%= msg.content %>" />
+                                <div class="edit-actions">
+                                    <button onclick="submitEdit('<%= msg._id %>')">Save</button>
+                                </div>
+                            </div>
+
+                            <button class="reply-btn" onclick="setReply('<%= msg._id %>', `<%= msg.content %>`)">↩ Reply</button>
                         </div>
+
+                        <% if (!isMe) { %>
+                            <span class="msg-time outside right"><%= msgTime %></span>
+                        <% } %>
                     </div>
-            <%  } } %>
+                <% }); %>
 
-            <div class="edit-container" style="display: none;">
-                <input type="text" class="edit-input" value="<%= msg.content %>" />
-                <div class="edit-actions">
-                    <button onclick="submitEdit('<%= msg._id %>')">Save</button>
-                </div>
-            </div>
+                <%
+                  // Logic for "Seen" label
+                  let showSeenLabel = false;
+                  if (messages.length > 0) {
+                      const lastMessage = messages[messages.length - 1];
+                      // Check if the last message was sent by the current user
+                      const lastMessageSentByMe = lastMessage.senderID.toString() === currentUserID.toString();
 
-            <button class="reply-btn" onclick="setReply('<%= msg._id %>', '<%= msg.content %>')">↩ Reply</button>
-        </div>
+                      // Check if the other user has marked the thread as read
+                      // This implies they've seen the last message *from you*.
+                      const otherUserHasSeenThread = thread && !thread.unreadBy.map(id => id.toString()).includes(otherUserID.toString());
 
-        <% if (!isMe) { %>
-            <span class="msg-time outside right"><%= msgTime %></span>
-        <% } %>
-    </div>
-
-<% }); %>
+                      if (lastMessageSentByMe && otherUserHasSeenThread) {
+                          showSeenLabel = true;
+                      }
+                  }
+                %>
+                <% if (showSeenLabel) { %>
+                    <div class="seen-label">Seen</div>
+                <% } %>
             </div>
 
             <div id="reply-preview" class="reply-preview" style="display: none;">
@@ -108,6 +132,7 @@
             const replyPreview = document.getElementById('reply-preview');
             const replyInput = document.getElementById('replyToInput');
             replyPreview.style.display = 'flex';
+            // Use innerText for security against XSS in dynamic content
             replyPreview.querySelector('.preview-text').innerText = content;
             replyInput.value = messageID;
         }

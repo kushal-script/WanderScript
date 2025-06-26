@@ -678,19 +678,20 @@ app.get('/WanderScript/homefeed', async (req, res) => {
 
     try {
         const [allPosts] = await db.promise().query(`
-            SELECT 
+            SELECT
                 p.postID, p.title, p.description,
                 p.userID, u.username,
                 (SELECT COUNT(*) FROM post_upvotes WHERE postID = p.postID) AS upvotes,
                 EXISTS (
-                    SELECT 1 FROM post_upvotes 
+                    SELECT 1 FROM post_upvotes
                     WHERE postID = p.postID
+                    AND userID = ? -- Add currentUser.id to check if current user upvoted
                 ) AS isUpvoted
             FROM posts p
             JOIN users u ON p.userID = u.userID
-            WHERE p.userID != ?  
+            WHERE p.userID != ?
             ORDER BY p.created_at DESC`,
-            [userID]);
+            [userID, userID]); 
 
         const [followingRows] = await db.promise().query(
             `SELECT followingID FROM followers WHERE followerID = ?`,
@@ -704,15 +705,28 @@ app.get('/WanderScript/homefeed', async (req, res) => {
             isFollowing: followingIDs.has(post.userID)
         }));
 
+        let totalUnreadCount = 0;
+        const threads = await Message.find({ participants: userID }); 
+
+        for (let thread of threads) {
+           
+            const unreadCountInThread = await Chats.countDocuments({
+                threadID: thread._id,
+                receiverID: userID,
+                isRead: false
+            });
+            totalUnreadCount += unreadCountInThread;
+        }
+
         res.render('homeFeed', {
             allPosts: postsWithFollowFlag,
-            currentUser
+            currentUser,
+            totalUnreadCount 
         });
     } catch (err) {
         console.error("Error loading home feed:", err);
         res.status(500).send("Server error loading feed.");
     }
-
 });
 
 //follow post
@@ -1079,7 +1093,7 @@ app.post('/WanderScript/comments/:postID', async (req, res) => {
             postID,
             userID: req.session.user.id,
             username: req.session.user.username,
-            commentText: content, // <---- Fix this line
+            commentText: content, 
             parentID: parentID || null
         });
 
@@ -1206,27 +1220,40 @@ app.get('/WanderScript/messages', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
     const currentUserID = req.session.user.id;
 
-    // Fetch all threads where current user is a participant
     const threads = await Message.find({ participants: currentUserID }).sort({ lastMessageTime: -1 });
 
-    const chats = [];
+    let chats = [];
+    let totalUnreadCount = 0;
 
     for (let thread of threads) {
         const otherUserID = thread.participants.find(id => id !== currentUserID);
         const [rows] = await db.promise().query('SELECT username FROM users WHERE userID = ?', [otherUserID]);
 
         if (rows.length) {
+            // Count unread messages specifically for the current user in this thread
+            // This counts messages *sent by the other user* that are *not marked as read* by the current user.
+            const unreadCount = await Chats.countDocuments({
+                threadID: thread._id,
+                receiverID: currentUserID, // Messages received by current user
+                senderID: otherUserID,     // Sent by the other user
+                isRead: false              // That are not yet read
+            });
+
+            totalUnreadCount += unreadCount;
+
             chats.push({
                 userID: otherUserID,
                 username: rows[0].username,
-                threadID: thread._id
+                threadID: thread._id,
+                unreadCount: unreadCount // Pass the calculated unread count
             });
         }
     }
 
     res.render('messageList', {
         user: req.session.user,
-        chats
+        chats,
+        totalUnreadCount
     });
 });
 
@@ -1237,12 +1264,25 @@ app.post('/WanderScript/messages/mark-read/:userID', async (req, res) => {
     const currentUserID = req.session.user.id;
     const otherID = req.params.userID;
 
-    await Message.updateMany(
-        { senderID: otherID, receiverID: currentUserID },
-        { $set: { isRead: true } }
-    );
+    try {
+        const thread = await Message.findOne({ participants: { $all: [currentUserID, otherID] } });
 
-    res.sendStatus(200);
+        if (thread) {
+            // Remove currentUserID from unreadBy list in the thread
+            thread.unreadBy = thread.unreadBy.filter(id => id.toString() !== currentUserID.toString());
+            await thread.save();
+
+            // Mark all messages from otherID to currentUserID in this thread as read
+            await Chats.updateMany(
+                { threadID: thread._id, receiverID: currentUserID, senderID: otherID, isRead: false },
+                { $set: { isRead: true } }
+            );
+        }
+        res.sendStatus(200);
+    } catch (error) {
+        console.error("Error marking messages as read:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
 });
 
 // POST /messages/mark-unread/:userID
@@ -1251,31 +1291,59 @@ app.post('/WanderScript/messages/mark-unread/:userID', async (req, res) => {
     const currentUserID = req.session.user.id;
     const otherID = req.params.userID;
 
-    await Message.updateMany(
-        { senderID: otherID, receiverID: currentUserID },
-        { $set: { isRead: false } }
-    );
+    try {
+        const thread = await Message.findOne({ participants: { $all: [currentUserID, otherID] } });
 
-    res.sendStatus(200);
+        if (thread) {
+            // Add currentUserID to unreadBy list in the thread if not already there
+            if (!thread.unreadBy.map(id => id.toString()).includes(currentUserID.toString())) {
+                thread.unreadBy.push(currentUserID);
+            }
+            await thread.save();
+
+            // Mark all messages from otherID to currentUserID in this thread as unread
+            await Chats.updateMany(
+                { threadID: thread._id, receiverID: currentUserID, senderID: otherID, isRead: true },
+                { $set: { isRead: false } }
+            );
+        }
+        res.sendStatus(200);
+    } catch (error) {
+        console.error("Error marking messages as unread:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
 });
 
 // DELETE /messages/delete/:userID
 app.delete('/WanderScript/messages/delete/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
+
     const currentUserID = req.session.user.id;
     const otherID = req.params.userID;
 
-    await Message.deleteMany({
-        $or: [
-            { senderID: currentUserID, receiverID: otherID },
-            { senderID: otherID, receiverID: currentUserID }
-        ]
-    });
+    try {
+        // Find the thread
+        const thread = await Message.findOne({
+            participants: { $all: [currentUserID, otherID], $size: 2 }
+        });
 
-    res.sendStatus(200);
+        if (thread) {
+            // Delete associated messages first
+            await Chats.deleteMany({ threadID: thread._id });
+            // Then delete the thread itself
+            await Message.deleteOne({ _id: thread._id });
+        } else {
+            return res.status(404).json({ success: false, message: 'Chat thread not found.' });
+        }
+
+        return res.sendStatus(200);
+    } catch (err) {
+        console.error("Error deleting chat:", err);
+        return res.status(500).json({ success: false, error: 'Failed to delete chat' });
+    }
 });
 
-// GET /messages/:userID - chat with a specific user 
+// GET /messages/:userID - chat with a specific user
 app.get('/WanderScript/messages/:userID', async (req, res) => {
     if (!req.session.user) return res.status(401).json({ success: false });
 
@@ -1291,11 +1359,10 @@ app.get('/WanderScript/messages/:userID', async (req, res) => {
     };
 
     // 1. Get the thread
-    const thread = await Message.findOne({
+    let thread = await Message.findOne({
         participants: { $all: [currentUserID, otherUserID] }
     });
 
-    // 2. If no thread, show empty messages
     let messages = [];
     let threadID = null;
 
@@ -1306,10 +1373,23 @@ app.get('/WanderScript/messages/:userID', async (req, res) => {
             .populate('replyTo')
             .sort({ createdAt: 1 });
 
-        // 3. Mark current user's unread flag as read
-        if (thread.unreadBy.includes(currentUserID)) {
-            thread.unreadBy = thread.unreadBy.filter(id => id !== currentUserID);
-            await thread.save();
+
+        await Chats.updateMany(
+            {
+                threadID: thread._id,
+                receiverID: currentUserID,
+                senderID: otherUserID,
+                isRead: false // Only mark unread messages
+            },
+            { $set: { isRead: true } }
+        );
+
+        const currentUserIDStr = currentUserID.toString();
+        thread.unreadBy = thread.unreadBy.map(id => id.toString());
+
+        if (thread.unreadBy.includes(currentUserIDStr)) {
+            thread.unreadBy = thread.unreadBy.filter(id => id !== currentUserIDStr);
+            await thread.save(); // Save the updated thread
         }
     }
 
@@ -1318,8 +1398,9 @@ app.get('/WanderScript/messages/:userID', async (req, res) => {
         otherUser,
         currentUserID,
         otherUserID,
-        threadID: otherUserID, // using receiver ID as thread
-        messages
+        threadID: threadID, 
+        messages,
+        thread 
     });
 });
 
@@ -1334,7 +1415,6 @@ app.post('/WanderScript/messages/:userID/send', async (req, res) => {
 
     if (!content) return res.status(400).send('Message content is required');
 
-    // 1. Find or create thread
     let thread = await Message.findOne({ participants: { $all: [senderID, receiverID] } });
 
     if (!thread) {
@@ -1342,25 +1422,26 @@ app.post('/WanderScript/messages/:userID/send', async (req, res) => {
             participants: [senderID, receiverID],
             lastMessage: content,
             lastMessageTime: new Date(),
-            unreadBy: [receiverID]
+            unreadBy: [receiverID] // Receiver has unread messages
         });
     } else {
-        // 2. Update thread metadata
+       
         thread.lastMessage = content;
         thread.lastMessageTime = new Date();
-        if (!thread.unreadBy.includes(receiverID)) {
+        // Add receiver to unreadBy if not already there
+        if (!thread.unreadBy.map(id => id.toString()).includes(receiverID.toString())) {
             thread.unreadBy.push(receiverID);
         }
         await thread.save();
     }
 
-    // 3. Create message
     const newMessage = new Chats({
         threadID: thread._id,
         senderID,
         receiverID,
         content,
-        replyTo: replyTo || null
+        replyTo: replyTo || null,
+        isRead: false // New message is unread by default for the receiver
     });
 
     await newMessage.save();
@@ -1389,8 +1470,19 @@ app.patch('/WanderScript/messages/:msgID', async (req, res) => {
     }
 
     message.content = content;
-    message.edited = true;
+    message.edited = true; // Set the edited flag
+    message.isRead = false; // Mark the message as unread for the receiver
+
     await message.save();
+
+    const thread = await Message.findById(message.threadID);
+    if (thread) {
+        const receiverID = message.receiverID;
+        if (!thread.unreadBy.map(id => id.toString()).includes(receiverID.toString())) {
+            thread.unreadBy.push(receiverID);
+            await thread.save();
+        }
+    }
 
     return res.json({ success: true, updated: message });
 });

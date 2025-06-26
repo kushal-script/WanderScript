@@ -79,7 +79,6 @@ a{
 .message-btn:hover {
     background-color: #ffffff22;
     box-shadow: 0 0 12px #ffffff99;
-    transform: scale(1.03);
 }
 
 .icon-text img {

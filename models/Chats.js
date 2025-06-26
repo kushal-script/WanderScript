@@ -8,7 +8,8 @@ const chatMessageSchema = new Schema({
   content: String,
   createdAt: { type: Date, default: Date.now },
   edited: { type: Boolean, default: false },
-  replyTo: { type: mongoose.Schema.Types.ObjectId, ref: 'ChatMessage', default: null }
+  replyTo: { type: mongoose.Schema.Types.ObjectId, ref: 'ChatMessage', default: null },
+  isRead: { type: Boolean, default: false } 
 });
 
 module.exports = mongoose.model('ChatMessage', chatMessageSchema);
