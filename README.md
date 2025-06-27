@@ -1,5 +1,9 @@
 # WanderScript
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](/WanderScript/LICENSE) file for details.
+
 ### Key Features:
 
 * **User Profiles:** Create and personalize your profile with a bio, track your posts, upvotes, followers, and who you are following. Easily edit your profile to keep it updated.
