@@ -52,9 +52,6 @@ exports.getEditPostPage = async (req, res) => {
             return res.status(404).send("Post not found.");
         }
 
-        // Add a check here if the current user is the owner, if not using isPostOwner middleware
-        // (If using isPostOwner, it should be applied to the route directly)
-
         res.render('editPost', {
             post,
             user: req.session.user,
@@ -69,7 +66,7 @@ exports.getEditPostPage = async (req, res) => {
 // PUT /posts/edit/:id
 exports.updatePost = async (req, res) => {
     // isAuthenticated middleware handles session check
-    // isPostOwner middleware (if applied) handles authorization
+    // isPostOwner middleware handles authorization
     const postID = req.params.id;
     const { title, description } = req.body;
 
@@ -104,7 +101,7 @@ exports.deletePost = async (req, res) => {
     const postID = req.params.id;
 
     try {
-        // Delete related upvotes first (CASCADE DELETE in DB is better)
+        // Delete related upvotes first 
         await db.query(`DELETE FROM post_upvotes WHERE postID = ?`, [postID]);
         // Then delete the post
         await db.query(`DELETE FROM posts WHERE postID = ?`, [postID]);

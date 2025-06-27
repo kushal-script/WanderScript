@@ -8,11 +8,10 @@ const { isAuthenticatedApi } = require('../middleware/authMiddleware');
 router.post('/:postID', isAuthenticatedApi, commentController.addComment);
 
 // Fetch Comments for a Post
-router.get('/:postID', commentController.getCommentsForPost); // Publicly accessible or add isAuthenticated if comments require login
+router.get('/:postID', commentController.getCommentsForPost); 
 
 // Delete Comment
 router.delete('/delete/:id', isAuthenticatedApi, commentController.deleteComment);
-// Your original code had a POST for delete comment, if client-side is sending POST for delete, change to router.post
-// router.post('/delete/:id', isAuthenticatedApi, commentController.deleteComment);
+
 
 module.exports = router;

@@ -56,12 +56,9 @@ exports.validatePostInput = (req, res, next) => {
 exports.validateMailInput = async (req, res, next) => {
     const { from, to, subject, body } = req.body;
     const username = req.session.user?.username;
-    const toUserID = req.params.id; // Assuming route is /user/:id/mail
+    const toUserID = req.params.id;
 
     if (!from || !to || !subject || !body || !username) {
-        // You'll need to fetch otherUsername here if validation fails before hitting controller
-        // This makes it tricky for a pure middleware, might be better handled in controller or by passing more info
-        // For simplicity, directly re-rendering with a generic recipient for now.
         const [rows] = await require('../utils/db').query('SELECT username FROM users WHERE userID = ?', [toUserID]);
         const otherUsername = rows.length > 0 ? rows[0].username : 'Recipient';
 

@@ -106,7 +106,7 @@ exports.getOtherUserProfile = async (req, res) => {
         const isFollowing = await userService.isFollowing(currentUserID, targetUserID);
 
         const profileData = {
-            _id: targetUserID, // Use _id for consistency with MongoDB models or simply userID
+            _id: targetUserID, 
             username: user.username,
             bio: user.bio || 'No bio yet.',
             followers: Array(followerCount).fill('•'),

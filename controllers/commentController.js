@@ -2,7 +2,7 @@
 const Comment = require('../models/Comment'); // Mongoose Comment model
 const { userOwnsPost } = require('../middleware/authMiddleware'); // Reusing helper from authMiddleware
 
-// Internal helper to nest comments (can be moved to a `commentService.js` if complex)
+// Internal helper to nest comments 
 function nestComments(comments) {
     const map = {};
     const roots = [];
@@ -27,7 +27,7 @@ function nestComments(comments) {
     return roots;
 }
 
-// Internal helper to recursively delete comments (can be moved to `commentService.js`)
+// Internal helper to recursively delete comments
 async function deleteCommentWithReplies(commentID) {
     const replies = await Comment.find({ parentID: commentID });
     for (const reply of replies) {
@@ -71,7 +71,7 @@ exports.getCommentsForPost = async (req, res) => {
     }
 };
 
-// DELETE /comments/delete/:id (or POST if using method-override and not true DELETE via JS)
+// DELETE /comments/delete/:id 
 exports.deleteComment = async (req, res) => {
     // isAuthenticatedApi middleware should handle the initial session check
     try {

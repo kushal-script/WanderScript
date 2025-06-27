@@ -7,7 +7,7 @@ const userService = require('../services/userService'); // For user lookup
 const { renderAuthPage, renderWithError } = require('../utils/helpers');
 const validator = require('validator'); // For specific internal email checks if needed
 
-const saltRounds = 10; // Can be read from process.env
+const saltRounds = 10; //Hashing (password)
 
 // GET /signup
 exports.getSignupPage = (req, res) => {
@@ -16,7 +16,7 @@ exports.getSignupPage = (req, res) => {
 
 // POST /signup
 exports.signupUser = async (req, res) => {
-    const { username, email, password } = req.body; // Validation already handled by middleware
+    const { username, email, password } = req.body; 
 
     try {
         const existingUser = await userService.findUserByEmail(email);
@@ -43,7 +43,7 @@ exports.getSigninPage = (req, res) => {
 
 // POST /signin
 exports.signinUser = async (req, res) => {
-    const { email, password, username } = req.body; // Email validation already handled by middleware
+    const { email, password, username } = req.body; 
 
     try {
         const user = await userService.findUserByEmail(email);
@@ -123,7 +123,7 @@ const verifyOtp = async (req, res) => {
         if (!email || !userOtp || !username) {
             return renderWithError(res, 'otpVerification.ejs', { mailID: email, username: username }, "Email, username, and OTP are required.", 'warning');
         }
-        if (!validator.isEmail(email)) { // Keeping this specific check here
+        if (!validator.isEmail(email)) {
             return res.redirect('/WanderScript/verify-otp?message=' + encodeURIComponent('Invalid email format.'));
         }
 

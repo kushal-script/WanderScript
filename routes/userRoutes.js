@@ -4,7 +4,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const postController = require('../controllers/postController');
 const { isAuthenticated, isAuthenticatedApi } = require('../middleware/authMiddleware');
-const { validateMailInput } = require('../middleware/validationMiddleware'); // If you want to validate mail from here
+const { validateMailInput } = require('../middleware/validationMiddleware'); 
 
 // User Profile & Dashboard
 router.get('/profile', isAuthenticated, userController.getUserProfile);

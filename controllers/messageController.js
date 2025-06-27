@@ -87,7 +87,6 @@ exports.getIndividualChat = async (req, res) => {
 
             // Update unreadBy array in the thread
             const currentUserIDStr = currentUserID.toString();
-            // Ensure thread.unreadBy is an array of strings for proper comparison
             thread.unreadBy = thread.unreadBy.map(id => id.toString());
 
             if (thread.unreadBy.includes(currentUserIDStr)) {
@@ -103,7 +102,7 @@ exports.getIndividualChat = async (req, res) => {
             otherUserID,
             threadID: threadID,
             messages,
-            thread // Pass the thread object for lastMessageTime etc.
+            thread 
         });
     } catch (err) {
         console.error("❌ Error loading individual chat:", err);
