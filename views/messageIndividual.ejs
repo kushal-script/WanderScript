@@ -86,11 +86,8 @@
                   let showSeenLabel = false;
                   if (messages.length > 0) {
                       const lastMessage = messages[messages.length - 1];
-                      // Check if the last message was sent by the current user
                       const lastMessageSentByMe = lastMessage.senderID.toString() === currentUserID.toString();
 
-                      // Check if the other user has marked the thread as read
-                      // This implies they've seen the last message *from you*.
                       const otherUserHasSeenThread = thread && !thread.unreadBy.map(id => id.toString()).includes(otherUserID.toString());
 
                       if (lastMessageSentByMe && otherUserHasSeenThread) {
@@ -157,7 +154,6 @@
             msgText.style.display = 'none';
             editContainer.style.display = 'flex';
 
-            // Hide the reply button if it exists within this message
             const replyBtn = messageDiv.querySelector('.reply-btn');
             if (replyBtn) {
                 replyBtn.style.display = 'none';

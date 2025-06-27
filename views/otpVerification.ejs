@@ -68,8 +68,8 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-          // Combine email validation and timer logic into one block
-          const emailInput = document.getElementById('visibleEmail'); // Correct ID for the visible email input
+          
+          const emailInput = document.getElementById('visibleEmail'); 
           const emailError = document.getElementById('email-error');
           const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
         
@@ -105,7 +105,7 @@
               } else {
                 clearInterval(timerInterval);
                 resendBtn.disabled = false;
-                timerDisplay.textContent = "You can now request for another OTP."; // Changed text for clarity
+                timerDisplay.textContent = "You can now request for another OTP.";
               }
             }, 1000);
           }
@@ -122,7 +122,6 @@
               startCountdown();
             }).catch((err) => {
               console.error("Failed to resend OTP:", err);
-              // Optionally, provide user feedback on failure
               Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
@@ -131,11 +130,9 @@
             });
           }
         
-          // Ensure this runs after all elements are available in the DOM
+          
           window.addEventListener("DOMContentLoaded", () => {
             const verifyForm = document.getElementById('verifyForm');
-            // Check if verifyForm exists AND is visible.
-            // The `display` style is set by your EJS template logic.
             if (verifyForm && window.getComputedStyle(verifyForm).display !== 'none') {
               startCountdown();
             }

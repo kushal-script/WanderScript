@@ -79,9 +79,9 @@
         });
     }
 
-    // New function for SweetAlert2 confirmation
+
     function confirmAndDeleteChat(e, userID) {
-      e.stopPropagation(); // Stop dropdown from closing immediately or propagating click
+      e.stopPropagation(); 
 
       Swal.fire({
         title: 'Are you sure?',
@@ -93,7 +93,7 @@
         confirmButtonText: 'Yes, delete it!'
       }).then((result) => {
         if (result.isConfirmed) {
-          // If user confirms, proceed with the actual delete operation
+         
           fetch(`/WanderScript/messages/delete/${userID}`, { method: 'DELETE' })
             .then(response => {
               if (response.ok) {
@@ -102,7 +102,7 @@
                   'Your chat has been deleted.',
                   'success'
                 ).then(() => {
-                  location.reload(); // Reload the page after successful deletion
+                  location.reload();
                 });
               } else {
                 Swal.fire(
@@ -124,10 +124,8 @@
       });
     }
 
-    // Navigate only when not clicking dropdown
     document.querySelectorAll('.chat-box').forEach(box => {
       box.addEventListener('click', e => {
-        // Check if the click target or any of its parents is a dropdown button or content
         if (!e.target.closest('.dropdown') && !e.target.classList.contains('dropdown-btn')) {
           const userID = box.getAttribute('data-userid');
           window.location.href = `/WanderScript/messages/${userID}`;

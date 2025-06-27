@@ -36,7 +36,6 @@ body {
   filter: grayscale(1) brightness(10);
 }
 
-/* Date Header */
 .date-header {
   text-align: center;
   margin: 1rem 0;
@@ -55,7 +54,6 @@ body {
   margin: 0 10px;
 }
 
-/* Timestamp outside the message bubble */
 .msg-time.outside {
   font-size: 0.7rem;
   color: #888;
@@ -139,7 +137,6 @@ body {
   height: 90vh;
 }
 
-/* Keep nav sticky if needed */
 .chat-nav {
   display: flex;
   justify-content: space-between;
@@ -170,7 +167,6 @@ body {
   border-top: 1px solid #2c2c2c;
 }
 
-/* Navbar */
 .chat-nav {
   display: flex;
   justify-content: space-between;
@@ -192,7 +188,6 @@ body {
   cursor: pointer;
 }
 
-/* Chat box */
 .chat-box {
   padding: 1.5rem 2rem;
   flex: 1;
@@ -225,7 +220,6 @@ body {
   position: relative;
 }
 
-/* Logged-in user's messages */
 .message-row.me .message {
   background-color: #00ffe7;
   color: #000;
@@ -233,7 +227,6 @@ body {
   box-shadow: 0 0 10px #00ffe7aa;
 }
 
-/* Other user's messages */
 .message-row.me .message {
   background-color: #1f2f2f;
   color: #00ffe7;
@@ -242,7 +235,6 @@ body {
   box-shadow: 0 0 6px rgba(0, 255, 231, 0.2);
 }
 
-/* Dropdown */
 .msg-options {
   position: absolute;
   top: -10px;
@@ -292,7 +284,6 @@ body {
   background: #00e0c1;
 }
 
-/* Reply reference */
 .reply-btn {
   background: none;
   border: none;
@@ -311,7 +302,6 @@ body {
   margin-bottom: 0.4rem;
 }
 
-/* Reply preview bar */
 .reply-preview {
   display: flex;
   align-items: center;
@@ -324,7 +314,6 @@ body {
   justify-content: space-between;
 }
 
-/* Chat input area */
 .chat-input {
   display: flex;
   justify-content: space-between;
@@ -384,7 +373,6 @@ body {
   background: #00e0c1;
 }
 
-/* Responsive layout */
 @media (max-width: 768px) {
   .page-container {
     border: none;
