@@ -1,14 +1,11 @@
 # WanderScript
 
-## Project Description
-
-WanderScript is a modern and intuitive social networking application designed for seamless connection and content sharing. It provides users with a comprehensive set of features to express themselves, interact with others, and discover new content in a vibrant community.
-
 ### Key Features:
 
 * **User Profiles:** Create and personalize your profile with a bio, track your posts, upvotes, followers, and who you are following. Easily edit your profile to keep it updated.
 * **Global and Personalized Feeds:** Dive into the "Global Feed" to explore a wide range of posts from across the platform, or focus on content from users you follow.
 * **Dynamic Posts:** Share your thoughts, ideas, or updates through posts. Engage with content by upvoting posts and leaving comments.
+* **Search Box:** Explore fellow users on platform.
 * **Interactive Messaging:** Stay connected with direct messages. The platform supports real-time chat, allowing you to send, receive, edit, and delete messages, as well as mark them as read or unread. You can also reply directly to specific messages within a conversation.
 * **Follower System:** Build your network by following other users and gain followers yourself. Manage your connections easily from your dashboard, with options to unfollow or remove followers.
 * **Secure Authentication:** Experience a secure login process with traditional username/email and password options, or leverage OTP (One-Time Password) verification for enhanced security. Features like password reset ensure account recovery.
@@ -118,6 +115,8 @@ WanderScript/
 * **Custom Chat Themes:** Allow users to personalize their chat interface with different themes.
 * **Light/Dark Theme Toggle:** Implement a toggle in the user dashboard for light and dark mode preferences.
 * **App Styling Enhancements:** Continuous improvements to the overall UI/UX and styling of the application.
+
+**Dual Database Architecture:** Leverages **MySQL** for core user data and relationships (profiles, followers, posts) and **MongoDB** for flexible, real-time data like comments and direct messages, showcasing an understanding of database selection for optimal performance.
 
 ## Contact
 
