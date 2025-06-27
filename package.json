@@ -2,9 +2,10 @@
   "name": "wanderscript",
   "version": "1.0.0",
   "description": "WanderScript is a full-stack blogging platform where users can share stories, add a bio, link two social media profiles, and embed a YouTube channel. Posts can be added, edited, deleted, and upvoted. Feeds are sorted by latest uploads for easy discovery.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js", 
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",

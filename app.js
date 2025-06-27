@@ -23,7 +23,6 @@ const messageRoutes = require('./routes/messageRoutes');
 
 // Configuration
 const port = process.env.PORT || 3000;
-const saltRounds = 10; // Keeping this here for now, consider moving to config
 
 // Global Middleware
 app.use(express.urlencoded({ extended: true }));
